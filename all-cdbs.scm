@@ -349,6 +349,31 @@
   (11      "Control" 0)))
 
 
+(define maintenance-out-02-cdb '(
+  name:    "MAINTENANCE_OUT_02_CDB"
+  desc:    "Exchange P_EXTENT"
+  tag:     "02"
+  size:    16
+  parameters:
+  (0       "opcode" "0xA4")
+  (1       "Service Action" "0x02" bits: 4 0)
+  (2 5)
+  (6 9     "List Length" "COMPUTED_AT_RUNTIME")
+  (10      "IMMED" bit: 0)
+  (11      "Control" 0)))
+
+
+(define p-extent-descriptor-scc-2-table-17 '(
+  name:    "P_EXTENT_DESCRIPTOR_SCC2_TABLE17"
+  desc:    "P_EXTENT Descriptor"
+  tag:     "PED"
+  parameters:
+  (0 1     "LUN_P")
+  (2 5     "Start LBA_P")
+  (6 9     "Number Of LBA_P")
+  (10 11   "Number Of Bytes Per LBA_P")))
+
+
 (define maintenance-in-00-xml-group (list
   visible: "Service Action" "0"
   members: maintenance-in-00-cdb))
@@ -432,6 +457,11 @@
   visible: "Service Action" "7"
   members: maintenance-out-07-cdb))
 
+(define maintenance-out-02-xml-group (list
+  visible: "Service Action" "2"
+  members: maintenance-out-02-cdb
+           p-extent-descriptor-scc-2-table-17))
+
 
 (define *maintenance-out-all* (list
   maintenance-out-cdb
@@ -439,12 +469,15 @@
   maintenance-out-01-cdb
   logical-unit-descriptor-scc-2-table-25
   maintenance-out-07-cdb
+  maintenance-out-02-cdb
+  p-extent-descriptor-scc-2-table-17
 ))
 
 (define *maintenance-out-all-xml-groups* (list
   maintenance-out-00-xml-group
   maintenance-out-01-xml-group
   maintenance-out-07-xml-group
+  maintenance-out-02-xml-group
 ))
 
 
