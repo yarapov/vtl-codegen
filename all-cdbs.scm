@@ -300,7 +300,7 @@
   (6 9)
   (10      "SETLUN" bit: 6  values: 0 "0h (Assign provided LUN)"
                                     1 "1h (Ignore provided LUN)")
-  (10      "Addporc" Bit: 1 Values: 0 "0h (Peripheral Device Type)"
+  (10      "ADDPORC" bit: 1 values: 0 "0h (Peripheral Device Type)"
                                     1 "1h (Component Device Type)")
   (11      "Control" 0)))
 
