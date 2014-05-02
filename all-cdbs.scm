@@ -108,6 +108,23 @@
 ))
 
 
+(define *cdb-structurs-tables* '(
+  ;; logical unit descriptor
+  scc-2-table-25 (
+  (0)
+  (1     "Logical Unit Type" bits: 3 0 values: scc-2-table-26)
+  (2 3   "LUN"))
+
+  ;; p_extent descriptor
+  scc-2-table-17 (
+  (0 1   "LUN_P")
+  (2 5   "Start LBA_P")
+  (6 9   "Number Of LBA_P")
+  (10 11 "Number Of Bytes Per LBA_P"))
+
+))
+
+
 (define maintenance-in-cdb '(
   name:  "MAINTENANCE_IN_CDB"
   desc:  "Maintenance In"
@@ -320,14 +337,11 @@
   (11      "Control" 0)))
 
 
-(define logical-unit-descriptor-scc-2-table-25 '(
-  name:    "LOGICAL_UNIT_DESCRIPTOR_SCC2_TABLE25"
-  desc:    "Logical Unit Descriptor"
-  tag:     "LUD"
-  parameters:
-  (0)
-  (1       "Logical Unit Type" bits: 3 0 values: scc-2-table-26)
-  (2 3     "LUN")))
+(define maintenance-out-01-lu-descriptor '(
+  name:       "MAINTENANCE_OUT_01_LU_DESCRIPTOR"
+  desc:       "Logical Unit Descriptor"
+  tag:        "01LUD"
+  parameters: scc-2-table-25))
 
 
 (define maintenance-out-07-cdb '(
@@ -350,6 +364,7 @@
 
 
 (define maintenance-out-02-cdb '(
+  fixme:   "XML: put old/new descriptors into groups"
   name:    "MAINTENANCE_OUT_02_CDB"
   desc:    "Exchange P_EXTENT"
   tag:     "02"
@@ -363,15 +378,18 @@
   (11      "Control" 0)))
 
 
-(define p-extent-descriptor-scc-2-table-17 '(
-  name:    "P_EXTENT_DESCRIPTOR_SCC2_TABLE17"
-  desc:    "P_EXTENT Descriptor"
-  tag:     "PED"
-  parameters:
-  (0 1     "LUN_P")
-  (2 5     "Start LBA_P")
-  (6 9     "Number Of LBA_P")
-  (10 11   "Number Of Bytes Per LBA_P")))
+(define maintenance-out-02-descriptor-old '(
+  name:       "MAINTENANCE_OUT_02_DESCRIPTOR_OLD"
+  desc:       "P_EXTENT Descriptor"
+  tag:        "02PEDOLD"
+  parameters: scc-2-table-17))
+
+
+(define maintenance-out-02-descriptor-new '(
+  name:       "MAINTENANCE_OUT_02_DESCRIPTOR_NEW"
+  desc:       "P_EXTENT Descriptor"
+  tag:        "02PEDNEW"
+  parameters: scc-2-table-17))
 
 
 (define maintenance-in-00-xml-group (list
@@ -451,7 +469,7 @@
 (define maintenance-out-01-xml-group (list
   visible: "Service Action" "1"
   members: maintenance-out-01-cdb
-           logical-unit-descriptor-scc-2-table-25))
+           maintenance-out-01-lu-descriptor))
 
 (define maintenance-out-07-xml-group (list
   visible: "Service Action" "7"
@@ -460,17 +478,19 @@
 (define maintenance-out-02-xml-group (list
   visible: "Service Action" "2"
   members: maintenance-out-02-cdb
-           p-extent-descriptor-scc-2-table-17))
+           maintenance-out-02-descriptor-old
+           maintenance-out-02-descriptor-new))
 
 
 (define *maintenance-out-all* (list
   maintenance-out-cdb
   maintenance-out-00-cdb
   maintenance-out-01-cdb
-  logical-unit-descriptor-scc-2-table-25
+  maintenance-out-01-lu-descriptor
   maintenance-out-07-cdb
   maintenance-out-02-cdb
-  p-extent-descriptor-scc-2-table-17
+  maintenance-out-02-descriptor-old
+  maintenance-out-02-descriptor-new
 ))
 
 (define *maintenance-out-all-xml-groups* (list

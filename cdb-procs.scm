@@ -86,12 +86,20 @@
 ;; CDB size, optional
 (define (cdb-size cdb) (cdb-property cdb 'size: number? #f))
 
+;; CDB 'fixme' string, optional
+(define (cdb-fixme cdb) (cdb-property cdb 'fixme: string? #f))
+
 
 ;; CDB parameters, mandatory
 (define (cdb-parameters cdb)
-  (let ((x (match (list 'parameters: list?) cdb)))
-    (if x (cdr x)
-      (error "CDB parameters not found"))))
+  (let ((l (match (list 'parameters: list?) cdb)))
+    (if l (cdr l)
+      (let ((res 
+              (and-let* ((s (match (list 'parameters: symbol?) cdb))
+                         (l (match (list (cadr s) list?) *cdb-structurs-tables*)))
+                (cadr l))))
+        (if res res
+          (error "CDB parameters not found"))))))
 
 
 ;; create parameter address: bytes and bits this parameter occupies
@@ -316,8 +324,9 @@
 
 ;; XML presentation of CDB
 (define (cdb->xml cdb)
-  (print-if (cdb-description cdb) "<!-- ~a -->~%~%")
   (print "<!-- ~a -->~%" (cdb-name cdb))
+  (print-if (cdb-description cdb) "<!-- ~a -->~%~%")
+  (print-if (cdb-fixme cdb) "<!-- FIXME: ~a -->~%")
   (print "~%")
   (for-each 
     (lambda (prm)
@@ -411,6 +420,7 @@
 ;; list of IDs for given CDB
 (define (cdb->id-list cdb)
   (print "/* ~a */~%" (cdb-name cdb))
+  (print-if (cdb-fixme cdb) "/* FIXME: ~a */~%")
   (print "enum~%")
   (print "{~%")
   (let loop ((p (cdb-parameters cdb)) (n 0))
@@ -430,6 +440,7 @@
 ;; list of parameters for given CDB
 (define (cdb->param-list cdb)
   (print "/* ~a */~%" (cdb-name cdb))
+  (print-if (cdb-fixme cdb) "/* FIXME: ~a */~%")
   (for-each 
     (lambda (prm)
         (let* ((name  (param-name prm))
@@ -446,6 +457,7 @@
 ;; code that gets parameters values for given CDB
 (define (cdb->get-params cdb)
   (print "/* ~a */~%" (cdb-name cdb))
+  (print-if (cdb-fixme cdb) "/* FIXME: ~a */~%")
   (for-each
     (lambda (prm)
       (let* ((name  (param-name prm))
@@ -471,6 +483,7 @@
 ;; code that populates parameters of given CDB
 (define (cdb->cdb cdb)
   (print "/* ~a */~%" (cdb-name cdb))
+  (print-if (cdb-fixme cdb) "/* FIXME: ~a */~%")
   (for-each
     (lambda (prm)
       (let* ((name  (param-name prm))
@@ -522,6 +535,7 @@
         (loop (max s (pa-byte-hi (param-addr (car p)))) (cdr p)))))
 
   (print-if (cdb-description cdb) "/* ~a */~%")
+  (print-if (cdb-fixme cdb) "/* FIXME: ~a */~%")
   (print "typedef struct _~a~%" (cdb-name cdb))
   (print "{~%")
   (for-each
