@@ -427,6 +427,22 @@
   (11      "Control" 0)))
 
 
+(define maintenance-out-05-cdb '(
+  name:    "MAINTENANCE_OUT_05_CDB"
+  desc:    "Remove Peripheral Device/Component Device"
+  tag:     "05"
+  size:    16
+  parameters:
+  (0       "opcode" "0xA4")
+  (1       "Service Action" "0x05" bits: 4 0)
+  (2 3)
+  (4 5     "LUN")
+  (6 9)
+  (10      "REMPORC" bit: 1 values: 0 "0 (LUN shall contain addresse of peripheral devices"
+                                    1 "1 (LUN shall contain addresse of component devices")
+  (11      "Control" 0)))
+
+
 (define maintenance-in-00-xml-group (list
   visible: "Service Action" "0"
   members: maintenance-in-00-cdb))
@@ -524,6 +540,9 @@
   visible: "Service Action" "4"
   members: maintenance-out-04-cdb))
 
+(define maintenance-out-05-xml-group (list
+  visible: "Service Action" "5"
+  members: maintenance-out-05-cdb))
 
 (define *maintenance-out-all* (list
   maintenance-out-cdb
@@ -536,6 +555,7 @@
   maintenance-out-02-descriptor-new
   maintenance-out-03-cdb
   maintenance-out-04-cdb
+  maintenance-out-05-cdb
 ))
 
 (define *maintenance-out-all-xml-groups* (list
@@ -545,6 +565,7 @@
   maintenance-out-02-xml-group
   maintenance-out-03-xml-group
   maintenance-out-04-xml-group
+  maintenance-out-05-xml-group
 ))
 
 
