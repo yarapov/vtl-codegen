@@ -511,7 +511,7 @@
   members: maintenance-in-08-cdb))
 
 
-(define *maintenance-in-all* (list
+(define *maintenance-in-all-cdbs* (list
   maintenance-in-cdb
   maintenance-in-00-cdb
   maintenance-in-01-cdb
@@ -577,7 +577,7 @@
            maintenance-out-06-identifier))
 
 
-(define *maintenance-out-all* (list
+(define *maintenance-out-all-cdbs* (list
   maintenance-out-cdb
   maintenance-out-00-cdb
   maintenance-out-01-cdb
@@ -606,8 +606,8 @@
 
 
 (define *all-cdbs* (append 
-  *maintenance-in-all* 
-  *maintenance-out-all*
+  *maintenance-in-all-cdbs* 
+  *maintenance-out-all-cdbs*
 ))
 
 

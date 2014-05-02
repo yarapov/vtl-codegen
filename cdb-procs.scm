@@ -618,4 +618,26 @@
     (list cdb->xml cdb->c-struct cdb->id-list cdb->param-list cdb->cdb)))
 
 
+(define (make-maintenance-in-xml)
+  (cdb->xml maintenance-in-cdb)
+  (for-each xml-group *maintenance-in-all-xml-groups*))
+
+(define (make-maintenance-in-c)
+  (for-each (lambda (p) (for-each p *maintenance-in-all-cdbs*) (print "~%"))
+            (list cdb->c-struct
+                  cdb->id-list 
+                  cdb->param-list
+                  cdb->cdb)))
+
+(define (make-maintenance-out-xml)
+  (cdb->xml maintenance-out-cdb)
+  (for-each xml-group *maintenance-out-all-xml-groups*))
+
+(define (make-maintenance-out-c)
+  (for-each (lambda (p) (for-each p *maintenance-out-all-cdbs*) (print "~%"))
+            (list cdb->c-struct
+                  cdb->id-list 
+                  cdb->param-list
+                  cdb->cdb)))
+
 ;; end of file
