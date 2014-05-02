@@ -320,6 +320,34 @@
   (11      "Control" 0)))
 
 
+(define logical-unit-descriptor-scc-2-table-25 '(
+  name:    "LOGICAL_UNIT_DESCRIPTOR_SCC2_TABLE25"
+  desc:    "Logical Unit Descriptor"
+  tag:     "LUD"
+  parameters:
+  (0)
+  (1       "Logical Unit Type" bits: 3 0 values: scc-2-table-26)
+  (2 3     "LUN")))
+
+
+(define maintenance-out-07-cdb '(
+  name:    "MAINTENANCE_OUT_07_CDB"
+  desc:    "Break Peripheral Device/Component Device"
+  tag:     "07"
+  size:    16
+  parameters:
+  (0       "opcode" "0xA4")
+  (1       "Service Action" "0x07" bits: 4 0)
+  (2       "Device Type" default: 0  ;; spc-3-table-83 (BRKPORC is 0) or
+                                     ;; scc-2-table-21 (BRKPORC is 1)
+           comment: "peripheral dev.type if BRKPORC is 0, component dev.type if BRKPORC is 1")
+  (3)
+  (4 5     "LUN")
+  (6 9)
+  (10      "BRKPORC" bit: 1 values: 0 "0h (Peripheral Device Type)"
+                                    1 "1h (Component Device Type)")
+  (11      "Control" 0)))
+
 
 (define maintenance-in-00-xml-group (list
   visible: "Service Action" "0"
@@ -397,18 +425,26 @@
 
 (define maintenance-out-01-xml-group (list
   visible: "Service Action" "1"
-  members: maintenance-out-01-cdb))
+  members: maintenance-out-01-cdb
+           logical-unit-descriptor-scc-2-table-25))
+
+(define maintenance-out-07-xml-group (list
+  visible: "Service Action" "7"
+  members: maintenance-out-07-cdb))
 
 
 (define *maintenance-out-all* (list
   maintenance-out-cdb
   maintenance-out-00-cdb
   maintenance-out-01-cdb
+  logical-unit-descriptor-scc-2-table-25
+  maintenance-out-07-cdb
 ))
 
 (define *maintenance-out-all-xml-groups* (list
   maintenance-out-00-xml-group
   maintenance-out-01-xml-group
+  maintenance-out-07-xml-group
 ))
 
 
