@@ -392,6 +392,24 @@
   parameters: scc-2-table-17))
 
 
+(define maintenance-out-03-cdb '(
+  name:    "MAINTENANCE_OUT_03_CDB"
+  desc:    "Exchange Peripheral Device/Component Device"
+  tag:     "03"
+  size:    16
+  parameters:
+  (0       "opcode" "0xA4")
+  (1       "Service Action" "0x03" bits: 4 0)
+  (2 3)
+  (4 5     "Old LUN")
+  (6 7)
+  (8 9     "New LUN")
+  (10      "EXPORC" bit: 1 values: 0 "0 (Old/New LUNs shall contain addresses of peripheral devices"
+                                   1 "1 (Old/New LUNs shall contain addresses of component devices")
+  (10      "IMMED" bit: 0)
+  (11      "Control" 0)))
+
+
 (define maintenance-in-00-xml-group (list
   visible: "Service Action" "0"
   members: maintenance-in-00-cdb))
@@ -481,6 +499,10 @@
            maintenance-out-02-descriptor-old
            maintenance-out-02-descriptor-new))
 
+(define maintenance-out-03-xml-group (list
+  visible: "Service Action" "3"
+  members: maintenance-out-03-cdb))
+
 
 (define *maintenance-out-all* (list
   maintenance-out-cdb
@@ -491,6 +513,7 @@
   maintenance-out-02-cdb
   maintenance-out-02-descriptor-old
   maintenance-out-02-descriptor-new
+  maintenance-out-03-cdb
 ))
 
 (define *maintenance-out-all-xml-groups* (list
@@ -498,6 +521,7 @@
   maintenance-out-01-xml-group
   maintenance-out-07-xml-group
   maintenance-out-02-xml-group
+  maintenance-out-03-xml-group
 ))
 
 
