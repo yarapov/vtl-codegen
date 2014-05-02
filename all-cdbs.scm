@@ -438,9 +438,36 @@
   (2 3)
   (4 5     "LUN")
   (6 9)
-  (10      "REMPORC" bit: 1 values: 0 "0 (LUN shall contain addresse of peripheral devices"
-                                    1 "1 (LUN shall contain addresse of component devices")
+  (10      "REMPORC" bit: 1 values: 0 "0 (LUN shall contain address of peripheral devices"
+                                    1 "1 (LUN shall contain address of component devices")
   (11      "Control" 0)))
+
+
+(define maintenance-out-06-cdb '(
+  fixme:   "is it ok to have fixed-length identifier?"
+  name:    "MAINTENANCE_OUT_06_CDB"
+  desc:    "Set Peripheral Device/Component Device Identifier"
+  tag:     "06"
+  size:    16
+  parameters:
+  (0       "opcode" "0xA4")
+  (1       "Service Action" "0x06" bits: 4 0)
+  (2 3)
+  (4 5     "LUN")
+  (6 9     "List Length" default: 64)
+  (10      "IDPORC" bit: 1 values: 0 "0 (LUN shall contain address of peripheral devices"
+                                   1 "1 (LUN shall contain address of component devices")
+  (11      "Control" 0)))
+
+
+(define maintenance-out-06-identifier '(
+  fixme:   "make it fixed-size array instead of Byte"
+  name:    "MAINTENANCE_OUT_06_IDENTIFIER"
+  desc:    "Device Identifier"
+  tag:     "06DI"
+  parameters:
+  (0       "Identifier" default: "ID")))
+
 
 
 (define maintenance-in-00-xml-group (list
@@ -544,6 +571,12 @@
   visible: "Service Action" "5"
   members: maintenance-out-05-cdb))
 
+(define maintenance-out-06-xml-group (list
+  visible: "Service Action" "6"
+  members: maintenance-out-06-cdb
+           maintenance-out-06-identifier))
+
+
 (define *maintenance-out-all* (list
   maintenance-out-cdb
   maintenance-out-00-cdb
@@ -556,6 +589,8 @@
   maintenance-out-03-cdb
   maintenance-out-04-cdb
   maintenance-out-05-cdb
+  maintenance-out-06-cdb
+  maintenance-out-06-identifier
 ))
 
 (define *maintenance-out-all-xml-groups* (list
@@ -566,6 +601,7 @@
   maintenance-out-03-xml-group
   maintenance-out-04-xml-group
   maintenance-out-05-xml-group
+  maintenance-out-06-xml-group
 ))
 
 
