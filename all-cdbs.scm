@@ -300,9 +300,25 @@
   (6 9)
   (10      "SETLUN" bit: 6  values: 0 "0h (Assign provided LUN)"
                                     1 "1h (Ignore provided LUN)")
-  (10      "ADDPORC" bit: 1 values: 0 "0h (Peripheral device type)"
-                                    1 "1h (Component device type)")
+  (10      "Addporc" Bit: 1 Values: 0 "0h (Peripheral Device Type)"
+                                    1 "1h (Component Device Type)")
   (11      "Control" 0)))
+
+
+(define maintenance-out-01-cdb '(
+  name:    "MAINTENANCE_OUT_01_CDB"
+  desc:    "Attach Component Device"
+  tag:     "01"
+  size:    16
+  parameters:
+  (0       "opcode" "0xA4")
+  (1       "Service Action" "0x01" bits: 4 0)
+  (2 3)
+  (4 5     "LUN_C")
+  (6 9     "List Length" "COMPUTED_AT_RUNTIME")
+  (10)
+  (11      "Control" 0)))
+
 
 
 (define maintenance-in-00-xml-group (list
@@ -345,10 +361,6 @@
   visible: "Service Action" "8"
   members: maintenance-in-08-cdb))
 
-(define maintenance-out-00-xml-group (list
-  visible: "Service Action" "0"
-  members: maintenance-out-00-cdb))
-
 
 (define *maintenance-in-all* (list
   maintenance-in-cdb
@@ -379,14 +391,24 @@
 ))
 
 
+(define maintenance-out-00-xml-group (list
+  visible: "Service Action" "0"
+  members: maintenance-out-00-cdb))
+
+(define maintenance-out-01-xml-group (list
+  visible: "Service Action" "1"
+  members: maintenance-out-01-cdb))
+
+
 (define *maintenance-out-all* (list
   maintenance-out-cdb
   maintenance-out-00-cdb
+  maintenance-out-01-cdb
 ))
-
 
 (define *maintenance-out-all-xml-groups* (list
   maintenance-out-00-xml-group
+  maintenance-out-01-xml-group
 ))
 
 
