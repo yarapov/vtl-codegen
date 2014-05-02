@@ -13,6 +13,7 @@
 
 
 (define *cdb-values-tables* '(
+  ;; maintenance in service action
   scc-2-table-13
   #x00 "00h (Report Assigned/Unassigned P_EXTENT)"
   #x01 "01h (Report Component Device)"
@@ -25,6 +26,18 @@
   #x09 "09h (Report Supported Configuration Method)"
   #x08 "08h (Report Unconfigured Capacity)"
 
+  ;; maintenance out service action
+  scc-2-table-54
+  #x00 "00h (Add Peripheral Device/Component Device)"
+  #x01 "01h (Attach To Component Device)"
+  #x07 "07h (Break Peripheral Device/Component Device)"
+  #x02 "02h (Exchange P_EXTENT)"
+  #x03 "03h (Exchange Peripheral Device/Component Device)"
+  #x04 "04h (Instruct Component Device)"
+  #x05 "05h (Remove Peripheral Device/Component Device)"
+  #x06 "06h (Set Peripheral Device/Component Device Identifier)"
+
+  ;; Peripheral device type
   spc-3-table-83
   #x00 "00h (Direct access block device)"
   #x01 "01h (Sequenta-access devices)"
@@ -71,6 +84,7 @@
   #x06 "06h (Present)"
   #x07 "07h (Readying)"
 
+  ;; logical unit type
   scc-2-table-26
   #x00 "0h (Physical logical unit (peripheral device))"
   #x01 "1h (Volume set)"
@@ -79,16 +93,24 @@
   #x06 "6h (Spare)"
   #x07 "7h (LUN_Z)"
 
+  ;; select report
   scc-2-table-29
-  #x00 "00b (Report all devices, LUN_P ignored)"
-  #x01 "01b (Report devices by LUN_P)"
-  #x02 "10b (Report unavailable devices, LUN_P ignored)"
+  #b00 "00b (Report all devices, LUN_P ignored)"
+  #b01 "01b (Report devices by LUN_P)"
+  #b10 "10b (Report unavailable devices, LUN_P ignored)"
+
+  ;; report states
+  scc-2-table-38
+  #b00 "00b (Report all states for all LU - LU type and LUN ignored)"
+  #b01 "01b (Report all states by given LU type - LUN ignored)"
+  #b01 "10b (Report all states by given LU type and LUN)"
 
 ))
 
 
-(define maintenance-in-common '(
+(define maintenance-in-cdb '(
   name:  "MAINTENANCE_IN_CDB"
+  desc:  "Maintenance In"
   size:  16
   parameters:
   (0     "opcode" "0xA3")
@@ -116,25 +138,6 @@
   (11    "Control" 0)))
 
 
-(define maintenance-in-00-plist '(
-  name:  "MAINTENANCE_IN_00_PLIST"
-  parameters:
-  (0 3   "Assigned/Unassigned P_EXTENTS List Length" "COMPUTED_AT_RUNTIME")))
-
-
-(define maintenance-in-00-plist-descriptor '(
-  name:  "MAINTENANCE_IN_00_PLIST_DESCRIPTOR"
-  tag:   "00PLD"
-  parameters:
-  (0 1   "LUN_P")
-  (2 5   "Start LBA_P")
-  (6 9   "Number Of LBA_P")
-  (10 11 "Number Of Bytes Per LBA_P")
-  (12 13)
-  (14    "Peripheral Device Type" values: spc-3-table-83)
-  (15    "P_EXTENT State" bits: 6 0 values: scc-2-table-44)))
-
-
 ;; maintenance in, service action 01h
 
 
@@ -151,22 +154,6 @@
   (6 9   "Allocation Length" default: 256)
   (10    "RPTSEL" bit: 0 default: 0)
   (11    "Control" 0)))
-
-
-(define maintenance-in-01-plist '(
-  name:  "MAINTENANCE_IN_01_PLIST"
-  parameters:
-  (0 3   "Component Device List Length" "COMPUTED_AT_RUNTIME")))
-
-
-(define maintenance-in-01-plist-descriptor '(
-  name:  "MAINTENANCE_IN_01_PLIST_DESCRIPTOR"
-  tag:   "01PLD"
-  parameters:
-  (0     "Component Device Type" values: scc-2-table-21)
-  (1     "Replace" bit: 7 default: 0)
-  (1     "Component Device State" bits: 6 0 values: scc-2-table-46)
-  (2 3   "LUN_C")))
 
 
 
@@ -187,28 +174,6 @@
   (10    "RPTSEL" bit: 0 default: 0)
   (11    "Control" 0)))
 
-
-(define maintenance-in-02-plist '(
-  name:  "MAINTENANCE_IN_02_PLIST"
-  parameters:
-  (0 3   "Component Device Attachements List Length" "COMPUTED_AT_RUNTIME")))
-
-
-(define maintenance-in-02-plist-descriptor '(
-  name:  "MAINTENANCE_IN_02_PLIST_DESCRIPTOR"
-  tag:   "02PLD"
-  parameters:
-  (0 1   "LUN_C")
-  (2 3   "Logical Unit List Length" "COMPUTED_AT_RUNTIME")))
-
-
-(define maintenance-in-02-lu-descriptor '(
-  name:  "MAINTENANCE_IN_02_LU_DESCRIPTOR"
-  tag:   "02LUD"
-  parameters:
-  (0)
-  (1     "Logical Unit Type" bits: 3 0 values: scc-2-table-26)
-  (2 3   "LUN")))
 
 
 ;; maintenance in, service action 07h
@@ -249,22 +214,6 @@
   (11    "Control" 0)))
 
 
-(define maintenance-in-03-plist '(
-  name:  "MAINTENANCE_IN_03_PLIST"
-  tag:   "03PL"
-  parameters:
-  (0 3   "Peripheral Device List Length" "COMPUTED_AT_RUNTIME")))
-
-
-(define maintenance-in-03-plist-descriptor '(
-  name:  "MAINTENANCE_IN_03_PLIST_DESCRIPTOR"
-  tag:   "03PLD"
-  parameters:
-  (0     "Peripheral Device Type" values: spc-3-table-83)
-  (1     "Replace" bit: 7 default: 0)
-  (1     "Peripheral Device State" bits: 6 0 values: scc-2-table-44)
-  (2 3   "LUN_P")))
-
 
 ;; mainenance in, service action 04h
 
@@ -284,29 +233,6 @@
   (10    "RPTSEL" bit: 0)
   (11    "Control" 0)))
 
-
-(define maintenance-in-04-plist '(
-  name:  "MAINTENANCE_IN_04_PLIST"
-  tag:   "04PL"
-  parameters:
-  (0 3   "Peripheral Device Associations List Length" "COMPUTED_AT_RUNTIME")))
-
-
-(define maintenance-in-04-plist-descriptor '(
-  name:  "MAINTENANCE_IN_04_PLIST_DESCRIPTOR"
-  tag:   "04PLD"
-  parameters:
-  (0 2   "LUN_P")
-  (3 4   "Logical Unit List Length" "COMPUTED_AT_RUNTIME")))
-
-
-(define maintenance-in-04-lu-descriptor '(
-  name:  "MAINTENANCE_IN_04_LU_DESCRIPTOR"
-  tag:   "04LUD"
-  parameters:
-  (0)
-  (1     "Logical Unit Type" bits: 3 0 values: scc-2-table-26)
-  (2 3   "LUN")))
 
 
 ;; maintenance in, service action 05h
@@ -330,7 +256,7 @@
 ;; maintenance in, service action 06h
 
 
-(define maintenance-in-06-cdb (list
+(define maintenance-in-06-cdb '(
   name:    "MAINTENANCE_IN_06_CDB"
   desc:    "Report States"
   tag:     "06"
@@ -338,26 +264,87 @@
   parameters:
   (0       "opcode" "0xA3")
   (1       "Service Action" "0x06")
-  ))
+  (2)
+  (3       "Logical Unit Type" bits: 3 0 values: scc-2-table-26)
+  (4 5     "LUN")
+  (6 9     "Allocation Length" default: 256)
+  (10      "Report States" bits: 5 4 values: scc-2-table-38)
+  (11      "Control" 0)))
+
+
+;; maintenance in, service action 09h
+
+
+(define maintenance-in-09-cdb '(
+  name:    "MAINTENANCE_IN_09_CDB"
+  desc:    "Report Supported Configuration Method"
+  tag:     "09"
+  size:    16
+  parameters:
+  (0       "opcode" "0xA3")
+  (1       "Service Action" "0x09" bits: 4 0)
+  (2 5)
+  (6 9     "Allocation Length" default: 256)
+  (10)
+  (11      "Control" 0)))
+
+
+;; maintenance in, service action 08h
+
+
+(define maintenance-in-08-cdb '(
+  name:    "MAINTENANCE_IN_08_CDB"
+  desc:    "Report Unconfigured Capacity"
+  tag:     "08"
+  size:    16
+  parameters:
+  (0       "opcode" "0xA3")
+  (1       "Service Action" "0x08" bits: 4 0)
+  (2 5)
+  (6 9     "Allocation Length" default: 256)
+  (10)
+  (11      "Control" 0)))
+
+
+(define maintenance-out-cdb '(
+  name:    "MAINTENANCE_OUT_CDB"
+  desc:    "Maintenance Out"
+  size:    16
+  parameters:
+  (0       "opcode" "0xA4")
+  (1       "Service Action" bits: 4 0 values: scc-2-table-54)
+  (2 10)
+  (11      "Control" 0)))
+
+
+(define maintenance-out-00-cdb '(
+  name:    "MAINTENANCE_OUT_00_CDB"
+  desc:    "Add Peripheral Device/Component Device"
+  tag:     "00"
+  size:    16
+  parameters:
+  (0       "opcode" "0xA4")
+  (1       "Service Action" "0x00" bits: 4 0)
+  (2       "Device Type" values: spc-3-table-83)
+  (3)
+  (4 5     "LUN")
+  (6 9)
+  (10      "SETLUN" bit: 6)
+  (10      "ADDPORC" bit: 1)
+  (11      "Control" 0)))
+
 
 (define maintenance-in-00-xml-group (list
   visible: "Service Action" "0"
-  members: maintenance-in-00-cdb
-           maintenance-in-00-plist
-           maintenance-in-00-plist-descriptor))
+  members: maintenance-in-00-cdb))
 
 (define maintenance-in-01-xml-group (list
   visible: "Service Action" "1"
-  members: maintenance-in-01-cdb
-           maintenance-in-01-plist
-           maintenance-in-01-plist-descriptor))
+  members: maintenance-in-01-cdb))
 
 (define maintenance-in-02-xml-group (list
   visible: "Service Action" "2"
-  members: maintenance-in-02-cdb
-           maintenance-in-02-plist
-           maintenance-in-02-plist-descriptor
-           maintenance-in-02-lu-descriptor))
+  members: maintenance-in-02-cdb))
 
 (define maintenance-in-07-xml-group (list
   visible: "Service Action" "7"
@@ -365,45 +352,45 @@
 
 (define maintenance-in-03-xml-group (list
   visible: "Service Action" "3"
-  members: maintenance-in-03-cdb
-           maintenance-in-03-plist
-           maintenance-in-03-plist-descriptor))
-
+  members: maintenance-in-03-cdb))
 
 (define maintenance-in-04-xml-group (list
   visible: "Service Action" "4"
-  members: maintenance-in-04-cdb
-           maintenance-in-04-plist
-           maintenance-in-04-plist-descriptor
-           maintenance-in-04-lu-descriptor))
+  members: maintenance-in-04-cdb))
 
 (define maintenance-in-05-xml-group (list
   visible: "Service Action" "5"
-  members: maintenance-in-05-cdb
-))
+  members: maintenance-in-05-cdb))
+
+(define maintenance-in-06-xml-group (list
+  visible: "Service Action" "6"
+  members: maintenance-in-06-cdb))
+
+(define maintenance-in-09-xml-group (list
+  visible: "Service Action" "9"
+  members: maintenance-in-09-cdb))
+
+(define maintenance-in-08-xml-group (list
+  visible: "Service Action" "8"
+  members: maintenance-in-08-cdb))
+
+(define maintenance-out-00-xml-group (list
+  visible: "Service Action" "0"
+  members: maintenance-out-00-cdb))
 
 
 (define *maintenance-in-all* (list
-  maintenance-in-common
+  maintenance-in-cdb
   maintenance-in-00-cdb
-  maintenance-in-00-plist
-  maintenance-in-00-plist-descriptor
   maintenance-in-01-cdb
-  maintenance-in-01-plist
-  maintenance-in-01-plist-descriptor
   maintenance-in-02-cdb
-  maintenance-in-02-plist
-  maintenance-in-02-plist-descriptor
-  maintenance-in-02-lu-descriptor
   maintenance-in-07-cdb
   maintenance-in-03-cdb
-  maintenance-in-03-plist
-  maintenance-in-03-plist-descriptor
   maintenance-in-04-cdb
-  maintenance-in-04-plist
-  maintenance-in-04-plist-descriptor
-  maintenance-in-04-lu-descriptor
   maintenance-in-05-cdb
+  maintenance-in-06-cdb
+  maintenance-in-09-cdb
+  maintenance-in-09-cdb
 ))
 
 
@@ -415,10 +402,26 @@
   maintenance-in-03-xml-group
   maintenance-in-04-xml-group
   maintenance-in-05-xml-group
+  maintenance-in-06-xml-group
+  maintenance-in-09-xml-group
+  maintenance-in-08-xml-group
 ))
 
 
-(define *all-cdbs* (append *maintenance-in-all*))
+(define *maintenance-in-all-xml-groups* (list
+  maintenance-in-00-xml-group
+))
+
+(define *maintenance-out-all* (list
+  maintenance-out-cdb
+  maintenance-out-00-cdb
+))
+
+
+(define *all-cdbs* (append 
+  *maintenance-in-all* 
+  *maintenance-out-all*
+))
 
 
 ;; circular files references
