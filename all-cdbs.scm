@@ -410,6 +410,23 @@
   (11      "Control" 0)))
 
 
+(define maintenance-out-04-cdb '(
+  fixme:   "vendor specific instructions not supported"
+  name:    "MAINTENANCE_OUT_04_CDB"
+  desc:    "Instruct Component Device"
+  tag:     "04"
+  size:    16
+  parameters:
+  (0       "opcode" "0xA4")
+  (1       "Service Action" "0x04" bits: 4 0)
+  (2       "Component Device Instruction" values: 0 "00h (Turn selected component device off)"
+                                                  1 "01h (Turn selected component device on)")
+  (4 5     "LUN_C")
+  (6 9     "List Length" 0)
+  (10)
+  (11      "Control" 0)))
+
+
 (define maintenance-in-00-xml-group (list
   visible: "Service Action" "0"
   members: maintenance-in-00-cdb))
@@ -503,6 +520,10 @@
   visible: "Service Action" "3"
   members: maintenance-out-03-cdb))
 
+(define maintenance-out-04-xml-group (list
+  visible: "Service Action" "4"
+  members: maintenance-out-04-cdb))
+
 
 (define *maintenance-out-all* (list
   maintenance-out-cdb
@@ -514,6 +535,7 @@
   maintenance-out-02-descriptor-old
   maintenance-out-02-descriptor-new
   maintenance-out-03-cdb
+  maintenance-out-04-cdb
 ))
 
 (define *maintenance-out-all-xml-groups* (list
@@ -522,6 +544,7 @@
   maintenance-out-07-xml-group
   maintenance-out-02-xml-group
   maintenance-out-03-xml-group
+  maintenance-out-04-xml-group
 ))
 
 

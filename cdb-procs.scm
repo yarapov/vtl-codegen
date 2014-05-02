@@ -16,6 +16,8 @@
 (define (print fmt . args)
   (apply format #t fmt args))
 
+(define *true-print* print)
+
 
 (define (print-if x fmt)
   (if x (print fmt x)))
