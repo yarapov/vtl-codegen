@@ -155,7 +155,7 @@
         (else (param-value (cdr param)))))
 
 
-;; retunr list of possible values of #f
+;; return list of possible values of #f
 (define (param-values param)
   (let ((x (match (list 'values:) param)))
     (if (not x) #f
@@ -167,6 +167,12 @@
               (if (not tab) #f
                 (if (null? (cdr tab)) #f
                   (cdr tab))))))))))
+
+
+;; return parameter's comment (optional)
+(define (param-comment param)
+  (and-let* ((c (match (list 'comment: string?) param)))
+    (cadr c)))
 
 
 ;; return first value from the list of possible values
@@ -189,8 +195,8 @@
 (define (values-next x)
   (let ((n (cddr x)))
     (if (null? n) #f
-      (if (not (number? (car n))) #f
-        n))))
+      (if (or (number? (car n)) (string? (car n))) n
+        #f))))
 
 
 ;; return default value of the paremeter.
@@ -318,8 +324,12 @@
         (let* ((name  (param-name prm))
                (value (param-value prm))
                (vlist (param-values prm))
+               (comm  (param-comment prm))
                (addr  (param-addr prm))
                (len   (pa-length addr)))
+          (define (print-close-bracket)
+            (print-if comm " description=\"~a\"")
+            (print " >~%"))
           (cond ((and name value) 
                  ;; both name and value defined: no need for user input
 ;;                 (print "<!-- ~a (~a), ~a long -->~%" name value (bits-string len))
@@ -329,10 +339,12 @@
                 ((and name (not value))
                  ;; name but no value: user input needed
                  (print "<!-- ~a, ~a long -->~%" name (bits-string len))
+                 (print-if comm "<!-- ~a -->~%")
                  (print "<parameter name=\"~a\" caption=\"~a\"" (param-xml-name prm cdb) name)
                  (cond (vlist
                         ;; user-defined list of values
-                        (print " type=\"List\" default=\"~a\" >~%" (param-default-as-list prm "0"))
+                        (print " type=\"List\" default=\"~a\"" (param-default-as-list prm "0"))
+                        (print-close-bracket)
                         (print "  <options>~%")
                         (let loop ((vlist vlist))
                           (if vlist
@@ -344,7 +356,8 @@
 
                        ((> *max-values-count-to-expand* (pa-values-count addr))
                         ;; as list of possible values
-                        (print " type=\"List\" default=\"~a\" >~%" (param-default prm "0"))
+                        (print " type=\"List\" default=\"~a\"" (param-default prm "0"))
+                        (print-close-bracket)
                         (print "  <options>~%")
                         (for-each 
                           (lambda (v)
@@ -354,7 +367,8 @@
 
                        (else
                         ;; as integer with range
-                        (print " type=\"Integer\" default=\"~a\" >~%" (param-default prm "0"))
+                        (print " type=\"Integer\" default=\"~a\"" (param-default prm "0"))
+                        (print-close-bracket)
                         (print "  <conditions>~%")
                         (print "    <condition type=\"RangeCondition\" minValue=\"0\" maxValue=\"~a\" action=\"NoError\" />~%" 
                                (- (pa-values-count addr) 1))

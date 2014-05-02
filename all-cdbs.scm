@@ -9,11 +9,8 @@
 (define members: 'members:)
 
 
-;; maintenance in
-
-
 (define *cdb-values-tables* '(
-  ;; maintenance in service action
+  ;; maintenance in service actions
   scc-2-table-13
   #x00 "00h (Report Assigned/Unassigned P_EXTENT)"
   #x01 "01h (Report Component Device)"
@@ -26,7 +23,7 @@
   #x09 "09h (Report Supported Configuration Method)"
   #x08 "08h (Report Unconfigured Capacity)"
 
-  ;; maintenance out service action
+  ;; maintenance out service actions
   scc-2-table-54
   #x00 "00h (Add Peripheral Device/Component Device)"
   #x01 "01h (Attach To Component Device)"
@@ -37,10 +34,10 @@
   #x05 "05h (Remove Peripheral Device/Component Device)"
   #x06 "06h (Set Peripheral Device/Component Device Identifier)"
 
-  ;; Peripheral device type
+  ;; Peripheral device types
   spc-3-table-83
   #x00 "00h (Direct access block device)"
-  #x01 "01h (Sequenta-access devices)"
+  #x01 "01h (Sequental-access devices)"
   #x02 "02h (Printer device"
   #x03 "03h (Processor device)"
   #x04 "04h (Write-once device)"
@@ -57,15 +54,7 @@
   #x1E "1Eh (Well known logical unit)"
   #x1F "1Fh (Unknown or no device type)"
 
-  scc-2-table-44
-  #x00 "00h (Available)"
-  #x01 "01h (Broken)"
-  #x02 "02h (Not available)"
-  #x03 "03h (Not supported)"
-  #x04 "04h (Present)"
-  #x05 "05h (Readying)"
-  #x06 "06h (Rebuild)"
-
+  ;; component device types
   scc-2-table-21
   #x00 "00h (Controller electronics that contain a SACL)"
   #x01 "01h (Non-volatile cache)"
@@ -75,6 +64,17 @@
   #x05 "05h (Key pad entry)"
   #x06 "06h (Fan)"
 
+  ;; Peripheral device and p_extent states
+  scc-2-table-44
+  #x00 "00h (Available)"
+  #x01 "01h (Broken)"
+  #x02 "02h (Not available)"
+  #x03 "03h (Not supported)"
+  #x04 "04h (Present)"
+  #x05 "05h (Readying)"
+  #x06 "06h (Rebuild)"
+
+  ;; component device states
   scc-2-table-46
   #x00 "00h (Available)"
   #x01 "01h (Broken)"
@@ -84,7 +84,7 @@
   #x06 "06h (Present)"
   #x07 "07h (Readying)"
 
-  ;; logical unit type
+  ;; logical unit types
   scc-2-table-26
   #x00 "0h (Physical logical unit (peripheral device))"
   #x01 "1h (Volume set)"
@@ -103,7 +103,7 @@
   scc-2-table-38
   #b00 "00b (Report all states for all LU - LU type and LUN ignored)"
   #b01 "01b (Report all states by given LU type - LUN ignored)"
-  #b01 "10b (Report all states by given LU type and LUN)"
+  #b10 "10b (Report all states by given LU type and LUN)"
 
 ))
 
@@ -117,9 +117,6 @@
   (1     "Service Action" bits: 4 0 values: scc-2-table-13)
   (2 10)
   (11    "Control" 0)))
-
-
-;; maintenance in, service action 00h
 
 
 (define maintenance-in-00-cdb '(
@@ -138,9 +135,6 @@
   (11    "Control" 0)))
 
 
-;; maintenance in, service action 01h
-
-
 (define maintenance-in-01-cdb '(
   name:  "MAINTENANCE_IN_01_CDB"
   desc:  "Report Component Device"
@@ -156,10 +150,6 @@
   (11    "Control" 0)))
 
 
-
-;; maintenance in, service action 02h
-
-
 (define maintenance-in-02-cdb '(
   name:  "MAINTENANCE_IN_02_CDB"
   desc:  "Report Component Device Attachements"
@@ -173,10 +163,6 @@
   (6 9   "Allocation Length" default: 256)
   (10    "RPTSEL" bit: 0 default: 0)
   (11    "Control" 0)))
-
-
-
-;; maintenance in, service action 07h
 
 
 (define maintenance-in-07-cdb '(
@@ -195,9 +181,6 @@
   (11    "Control" 0)))
 
 
-;; maintenance in, service action 03h
-
-
 (define maintenance-in-03-cdb '(
   name:  "MAINTENANCE_IN_03_CDB"
   desc:  "Report Peripheral Device"
@@ -212,10 +195,6 @@
   (10    "RPTMBUS" bit: 3)
   (10    "Select Report" bits: 1 0 values: scc-2-table-29)
   (11    "Control" 0)))
-
-
-
-;; mainenance in, service action 04h
 
 
 (define maintenance-in-04-cdb '(
@@ -234,10 +213,6 @@
   (11    "Control" 0)))
 
 
-
-;; maintenance in, service action 05h
-
-
 (define maintenance-in-05-cdb '(
   name:  "MAINTENANCE_IN_05_CDB"
   desc:  "Report Peripheral Device/Component Device Identifier"
@@ -251,9 +226,6 @@
   (6 9   "Allocation Length" default: 256)
   (10    "PORCLU" bit: 1)
   (11    "Control" 0)))
-
-
-;; maintenance in, service action 06h
 
 
 (define maintenance-in-06-cdb '(
@@ -272,9 +244,6 @@
   (11      "Control" 0)))
 
 
-;; maintenance in, service action 09h
-
-
 (define maintenance-in-09-cdb '(
   name:    "MAINTENANCE_IN_09_CDB"
   desc:    "Report Supported Configuration Method"
@@ -287,9 +256,6 @@
   (6 9     "Allocation Length" default: 256)
   (10)
   (11      "Control" 0)))
-
-
-;; maintenance in, service action 08h
 
 
 (define maintenance-in-08-cdb '(
@@ -325,12 +291,17 @@
   parameters:
   (0       "opcode" "0xA4")
   (1       "Service Action" "0x00" bits: 4 0)
-  (2       "Device Type" values: spc-3-table-83)
+  (2       "Device Type" default: 0  ;; spc-3-table-83 (ADDPORC is 0) or
+                                     ;; scc-2-table-21 (ADDPORC is 1)
+           comment: "peripheral dev.type if ADDPORC is 0, component dev.type if ADDPORC is 1")
   (3)
-  (4 5     "LUN")
+  (4 5     "LUN"
+           comment: "should be ignored when SETLUN is 1")
   (6 9)
-  (10      "SETLUN" bit: 6)
-  (10      "ADDPORC" bit: 1)
+  (10      "SETLUN" bit: 6  values: 0 "0h (Assign provided LUN)"
+                                    1 "1h (Ignore provided LUN)")
+  (10      "ADDPORC" bit: 1 values: 0 "0h (Peripheral device type)"
+                                    1 "1h (Component device type)")
   (11      "Control" 0)))
 
 
@@ -408,13 +379,14 @@
 ))
 
 
-(define *maintenance-in-all-xml-groups* (list
-  maintenance-in-00-xml-group
-))
-
 (define *maintenance-out-all* (list
   maintenance-out-cdb
   maintenance-out-00-cdb
+))
+
+
+(define *maintenance-out-all-xml-groups* (list
+  maintenance-out-00-xml-group
 ))
 
 
@@ -422,6 +394,13 @@
   *maintenance-in-all* 
   *maintenance-out-all*
 ))
+
+
+(define *all-xml-groups* (append
+  *maintenance-in-all-xml-groups*
+  *maintenance-out-all-xml-groups*
+))
+
 
 
 ;; circular files references
