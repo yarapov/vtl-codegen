@@ -105,6 +105,12 @@
   #b01 "01b (Report all states by given LU type - LUN ignored)"
   #b10 "10b (Report all states by given LU type and LUN)"
 
+  ;; redundancy group in service actions
+  scc-2-table-68
+  #x02 "02h (Report Basic Redundancy Group)"
+  #x00 "00h (Report Redundancy Groups)"
+  #x01 "01h (Report Unassigned Redundancy Group Space)"
+
 ))
 
 
@@ -491,6 +497,64 @@
   (0       "Identifier" default: "ID")))
 
 
+(define redundancy-group-in-cdb '(
+  name:    "REDUNDANCY_GROUP_IN_CDB"
+  desc:    "Redundancy Group (In)"
+  size:    16
+  parameters:
+  (0       "opcode" "0xBA")
+  (1       "Service Action" bits: 4 0 values: scc-2-table-68)
+  (2 10)
+  (11      "Control" 0)))
+
+
+(define redundancy-group-in-02-cdb '(
+  name:    "REDUNDANCY_GROUP_IN_02_CDB"
+  desc:    "Report Basic Redundancy Group"
+  tag:     "02"
+  cond:    "Service_Action == 0x02"
+  size:    16
+  parameters:
+  (0       "opcode" "0xBA")
+  (1       "Service Action" "0x02" bits: 4 0)
+  (2 3)
+  (4 5     "LUN_R")
+  (6 9     "Allocation Length" default: 256)
+  (10)
+  (11      "Control" 0)))
+
+
+(define redundancy-group-in-00-cdb '(
+  name:    "REDUNDANCY_GROUP_IN_00_CDB"
+  desc:    "Report Redundancy Groups"
+  tag:     "00"
+  cond:    "Service_Action == 0x00"
+  size:    16
+  parameters:
+  (0       "opcode" "0xBA")
+  (1       "Service Action" "0x00" bits: 4 0)
+  (2 3)
+  (4 5     "LUN_R")
+  (6 9     "Allocation Length" default: 256)
+  (10      "RPTSEL" bit: 0)
+  (11      "Control" 0)))
+
+
+(define redundancy-group-in-01-cdb '(
+  name:    "REDUNDANCY_GROUP_IN_01_CDB"
+  desc:    "Report Unassigned Redundancy Group Space"
+  tag:     "01"
+  cond:    "Service_Action == 0x01"
+  size:    16
+  parameters:
+  (0       "opcode" "0xBA")
+  (1       "Service Action" "0x01" bits: 4 0)
+  (2 3)
+  (4 5     "LUN_R")
+  (6 9     "Allocation Length" default: 256)
+  (10      "RPTSEL" bit: 0)
+  (11      "Control" 0)))
+
 
 (define maintenance-in-00-xml-group (list
   visible: "Service Action" "0"
@@ -627,15 +691,45 @@
 ))
 
 
+(define redundancy-group-in-02-xml-group (list
+  visible: "Service Action" "2"
+  members: redundancy-group-in-02-cdb))
+
+(define redundancy-group-in-00-xml-group (list
+  visible: "Service Action" "0"
+  members: redundancy-group-in-00-cdb))
+
+(define redundancy-group-in-01-xml-group (list
+  visible: "Service Action" "1"
+  members: redundancy-group-in-01-cdb))
+
+
+(define *redundancy-group-in-all-cdbs* (list
+  redundancy-group-in-cdb
+  redundancy-group-in-02-cdb
+  redundancy-group-in-00-cdb
+  redundancy-group-in-01-cdb
+))
+
+
+(define *redundancy-group-in-all-xml-groups* (list
+  redundancy-group-in-02-xml-group
+  redundancy-group-in-00-xml-group
+  redundancy-group-in-01-xml-group
+))
+
+
 (define *all-cdbs* (append 
   *maintenance-in-all-cdbs* 
   *maintenance-out-all-cdbs*
+  *redundancy-group-in-all-cdbs*
 ))
 
 
 (define *all-xml-groups* (append
   *maintenance-in-all-xml-groups*
   *maintenance-out-all-xml-groups*
+  *redundancy-group-in-all-xml-groups*
 ))
 
 

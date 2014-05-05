@@ -632,27 +632,26 @@
     (list cdb->xml cdb->c-struct cdb->id-list cdb->param-list cdb->cdb)))
 
 
-(define (make-maintenance-in-xml)
-  (cdb->xml maintenance-in-cdb)
-  (for-each xml-group *maintenance-in-all-xml-groups*))
+(define (make-xml root groups)
+  (cdb->xml root)
+  (for-each xml-group groups))
 
-(define (make-maintenance-in-c)
-  (for-each (lambda (p) (for-each p *maintenance-in-all-cdbs*) (print "~%"))
+(define (make-c cdbs)
+  (for-each (lambda (p) (for-each p cdbs) (print "~%"))
             (list cdb->c-struct
                   cdb->id-list 
                   cdb->param-list
                   cdb->cdb)))
 
-(define (make-maintenance-out-xml)
-  (cdb->xml maintenance-out-cdb)
-  (for-each xml-group *maintenance-out-all-xml-groups*))
 
-(define (make-maintenance-out-c)
-  (for-each (lambda (p) (for-each p *maintenance-out-all-cdbs*) (print "~%"))
-            (list cdb->c-struct
-                  cdb->id-list 
-                  cdb->param-list
-                  cdb->cdb)))
+(define (make-maintenance-in-xml) (make-xml maintenance-in-cdb *maintenance-in-all-xml-groups*))
+(define (make-maintenance-in-c) (make-c *maintenance-in-all-cdbs*))
+
+(define (make-maintenance-out-xml) (make-xml maintenance-out-cdb *maintenance-out-all-xml-groups*))
+(define (make-maintenance-out-c) (make-c *maintenance-out-all-cdbs*))
+
+(define (make-redundancy-group-in-xml) (make-xml redundancy-group-in-cdb *redundancy-group-in-all-xml-groups*))
+(define (make-redundancy-group-in-c) (make-c *redundancy-group-in-all-cdbs*))
 
 
 (define (helpme)
@@ -660,6 +659,9 @@
             '("make-maintenance-in-xml"
               "make-maintenance-in-c"
               "make-maintenance-out-xml"
-              "make-maintenance-out-c")))
+              "make-maintenance-out-c"
+              "make-redundancy-group-in-xml"
+              "make-redundancy-group-in-c"
+              )))
 
 ;; end of file
