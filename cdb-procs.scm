@@ -91,6 +91,8 @@
 ;; CDB 'fixme' string, optional
 (define (cdb-fixme cdb) (cdb-property cdb 'fixme: string? #f))
 
+;; CDB code condition
+(define (cdb-code-condition cdb) (cdb-property cdb 'cond: string? #f))
 
 ;; CDB parameters, mandatory
 (define (cdb-parameters cdb)
@@ -484,48 +486,60 @@
 
 ;; code that populates parameters of given CDB
 (define (cdb->cdb cdb)
-  (print "/* ~a */~%" (cdb-name cdb))
-  (print-if (cdb-fixme cdb) "/* FIXME: ~a */~%")
-  (for-each
-    (lambda (prm)
-      (let* ((name  (param-name prm))
-             (id    (param-id prm cdb))
-             (ident (name->ident name))
-             (value (param-value prm))
-             (addr  (param-addr prm))
-             (bit-lo(pa-bit-lo addr))
-             (len   (pa-length addr)))
-        (if name
-          (case len
-            ((64 32 16) 
-             (print "cdb->~a = htobe~a( ~a );~%" ident len
-                     (if value value
-                       (format #f "GetCurrentValue( ~a )->GetUint~a()" id len))))
-
-            ((24) 
-             (print "htobe24( cdb->~a, ~a );~%" ident
-                     (if value value
-                       (format #f "GetCurrentValue( ~a )->GetUint32()" id))))
-
-            ((8) 
-             (print "cdb->~a = ~a;~%" ident
-                     (if value value
-                       (format #f "GetCurrentValue( ~a )->GetByte()" id))))
-
-            ((7 6 5 4 3 2 1)
-             (let-values (((struct-name comment index) (param-struct-name prm cdb)))
-               (print "cdb->~a ~a ~a~a;~%" struct-name
-                      (if (zero? index) "="
-                        "|=")
+  (let* ((code-cond (cdb-code-condition cdb))
+         (pr (lambda (fmt . args)
+               (if code-cond (print "\t"))
+               (apply print fmt args)))
+         (pr-if (lambda (x fmt)
+                  (if (and code-cond x) (print "\t"))
+                  (print-if x fmt))))
+    (and-let* (code-cond)
+              (print "if( ~a )~%" code-cond)
+              (print "{~%"))
+    (pr "/* ~a */~%" (cdb-name cdb))
+    (pr-if (cdb-fixme cdb) "/* FIXME: ~a */~%")
+    (pr "~a *cdb = (~a*)FIXME;~%" (cdb-name cdb) (cdb-name cdb))
+    (for-each
+      (lambda (prm)
+        (let* ((name  (param-name prm))
+               (id    (param-id prm cdb))
+               (ident (name->ident name))
+               (value (param-value prm))
+               (addr  (param-addr prm))
+               (bit-lo(pa-bit-lo addr))
+               (len   (pa-length addr)))
+          (if name
+            (case len
+              ((64 32 16) 
+               (pr "cdb->~a = htobe~a( ~a );~%" ident len
                       (if value value
-                        (format #f "GetCurrentValue( ~a )->GetByte()" id))
-                      (if (zero? bit-lo) ""
-                        (format #f " << ~a" bit-lo)))))
+                        (format #f "GetCurrentValue( ~a )->GetUint~a()" id len))))
 
-            (else 
-              (error (format #f "cdb->cdb: bad parameter length: ~a" len)))))))
-    (cdb-parameters cdb))
-  (print "~%"))
+              ((24) 
+               (pr "htobe24( cdb->~a, ~a );~%" ident
+                      (if value value
+                        (format #f "GetCurrentValue( ~a )->GetUint32()" id))))
+
+              ((8) 
+               (pr "cdb->~a = ~a;~%" ident
+                      (if value value
+                        (format #f "GetCurrentValue( ~a )->GetByte()" id))))
+
+              ((7 6 5 4 3 2 1)
+               (let-values (((struct-name comment index) (param-struct-name prm cdb)))
+                           (pr "cdb->~a ~a ~a~a;~%" struct-name
+                                  (if (zero? index) "="
+                                    "|=")
+                                  (if value value
+                                    (format #f "GetCurrentValue( ~a )->GetByte()" id))
+                                  (if (zero? bit-lo) ""
+                                    (format #f " << ~a" bit-lo)))))
+
+              (else 
+                (error (format #f "cdb->cdb: bad parameter length: ~a" len)))))))
+      (cdb-parameters cdb))
+    (print-if code-cond "}~%")
+    (print "~%")))
 
 
 ;; c-structure that represents given CDB
@@ -639,5 +653,13 @@
                   cdb->id-list 
                   cdb->param-list
                   cdb->cdb)))
+
+
+(define (helpme)
+  (for-each (curry format #t "~a~%")
+            '("make-maintenance-in-xml"
+              "make-maintenance-in-c"
+              "make-maintenance-out-xml"
+              "make-maintenance-out-c")))
 
 ;; end of file

@@ -139,6 +139,7 @@
 (define maintenance-in-00-cdb '(
   name:  "MAINTENANCE_IN_00_CDB"
   desc:  "Report Assigned/Unassigned P_EXTENT"
+  cond:  "mi->Service_Action == 0x00"
   tag:   "00"
   size:  16
   parameters:
@@ -155,6 +156,7 @@
 (define maintenance-in-01-cdb '(
   name:  "MAINTENANCE_IN_01_CDB"
   desc:  "Report Component Device"
+  cond:  "mi->Service_Action == 0x01"
   tag:   "01"
   size:  16
   parameters:
@@ -170,6 +172,7 @@
 (define maintenance-in-02-cdb '(
   name:  "MAINTENANCE_IN_02_CDB"
   desc:  "Report Component Device Attachements"
+  cond:  "mi->Service_Action == 0x02"
   tag:   "02"
   size:  16
   parameters:
@@ -185,6 +188,7 @@
 (define maintenance-in-07-cdb '(
   name:  "MAINTENANCE_IN_07_CDB"
   desc:  "Report Device Identification"
+  cond:  "mi->Service_Action == 0x07"
   tag:   "07"
   size:  16
   parameters:
@@ -201,6 +205,7 @@
 (define maintenance-in-03-cdb '(
   name:  "MAINTENANCE_IN_03_CDB"
   desc:  "Report Peripheral Device"
+  cond:  "mi->Service_Action == 0x03"
   tag:   "03"
   size:  16
   parameters:
@@ -217,6 +222,7 @@
 (define maintenance-in-04-cdb '(
   name:  "MAINTENANCE_IN_04_CDB"
   desc:  "Report Peripheral Device Associations"
+  cond:  "mi->Service_Action == 0x04"
   tag:   "04"
   size:  16
   parameters:
@@ -233,6 +239,7 @@
 (define maintenance-in-05-cdb '(
   name:  "MAINTENANCE_IN_05_CDB"
   desc:  "Report Peripheral Device/Component Device Identifier"
+  cond:  "mi->Service_Action == 0x05"
   tag:   "05"
   size:  16
   parameters:
@@ -248,6 +255,7 @@
 (define maintenance-in-06-cdb '(
   name:    "MAINTENANCE_IN_06_CDB"
   desc:    "Report States"
+  cond:    "mi->Service_Action == 0x06"
   tag:     "06"
   size:    16
   parameters:
@@ -264,6 +272,7 @@
 (define maintenance-in-09-cdb '(
   name:    "MAINTENANCE_IN_09_CDB"
   desc:    "Report Supported Configuration Method"
+  cond:    "mi->Service_Action == 0x09"
   tag:     "09"
   size:    16
   parameters:
@@ -278,6 +287,7 @@
 (define maintenance-in-08-cdb '(
   name:    "MAINTENANCE_IN_08_CDB"
   desc:    "Report Unconfigured Capacity"
+  cond:    "mi->Service_Action == 0x08"
   tag:     "08"
   size:    16
   parameters:
@@ -303,6 +313,7 @@
 (define maintenance-out-00-cdb '(
   name:    "MAINTENANCE_OUT_00_CDB"
   desc:    "Add Peripheral Device/Component Device"
+  cond:    "mo->Service_Action == 0x00"
   tag:     "00"
   size:    16
   parameters:
@@ -325,6 +336,7 @@
 (define maintenance-out-01-cdb '(
   name:    "MAINTENANCE_OUT_01_CDB"
   desc:    "Attach Component Device"
+  cond:    "mo->Service_Action == 0x01"
   tag:     "01"
   size:    16
   parameters:
@@ -340,6 +352,7 @@
 (define maintenance-out-01-lu-descriptor '(
   name:       "MAINTENANCE_OUT_01_LU_DESCRIPTOR"
   desc:       "Logical Unit Descriptor"
+  cond:       "mo->Service_Action == 0x01"
   tag:        "01LUD"
   parameters: scc-2-table-25))
 
@@ -347,6 +360,7 @@
 (define maintenance-out-07-cdb '(
   name:    "MAINTENANCE_OUT_07_CDB"
   desc:    "Break Peripheral Device/Component Device"
+  cond:    "mo->Service_Action == 0x07"
   tag:     "07"
   size:    16
   parameters:
@@ -367,6 +381,7 @@
   fixme:   "XML: put old/new descriptors into groups"
   name:    "MAINTENANCE_OUT_02_CDB"
   desc:    "Exchange P_EXTENT"
+  cond:    "mo->Service_Action == 0x02"
   tag:     "02"
   size:    16
   parameters:
@@ -381,6 +396,7 @@
 (define maintenance-out-02-descriptor-old '(
   name:       "MAINTENANCE_OUT_02_DESCRIPTOR_OLD"
   desc:       "P_EXTENT Descriptor"
+  cond:       "mo->Service_Action == 0x02"
   tag:        "02PEDOLD"
   parameters: scc-2-table-17))
 
@@ -388,6 +404,7 @@
 (define maintenance-out-02-descriptor-new '(
   name:       "MAINTENANCE_OUT_02_DESCRIPTOR_NEW"
   desc:       "P_EXTENT Descriptor"
+  cond:       "mo->Service_Action == 0x02"
   tag:        "02PEDNEW"
   parameters: scc-2-table-17))
 
@@ -395,6 +412,7 @@
 (define maintenance-out-03-cdb '(
   name:    "MAINTENANCE_OUT_03_CDB"
   desc:    "Exchange Peripheral Device/Component Device"
+  cond:    "mo->Service_Action == 0x03"
   tag:     "03"
   size:    16
   parameters:
@@ -414,6 +432,7 @@
   fixme:   "vendor specific instructions not supported"
   name:    "MAINTENANCE_OUT_04_CDB"
   desc:    "Instruct Component Device"
+  cond:    "mo->Service_Action == 0x04"
   tag:     "04"
   size:    16
   parameters:
@@ -430,6 +449,7 @@
 (define maintenance-out-05-cdb '(
   name:    "MAINTENANCE_OUT_05_CDB"
   desc:    "Remove Peripheral Device/Component Device"
+  cond:    "mo->Service_Action == 0x05"
   tag:     "05"
   size:    16
   parameters:
@@ -447,6 +467,7 @@
   fixme:   "is it ok to have fixed-length identifier?"
   name:    "MAINTENANCE_OUT_06_CDB"
   desc:    "Set Peripheral Device/Component Device Identifier"
+  cond:    "mo->Service_Action == 0x06"
   tag:     "06"
   size:    16
   parameters:
@@ -464,6 +485,7 @@
   fixme:   "make it fixed-size array instead of Byte"
   name:    "MAINTENANCE_OUT_06_IDENTIFIER"
   desc:    "Device Identifier"
+  cond:    "mo->Service_Action == 0x06"
   tag:     "06DI"
   parameters:
   (0       "Identifier" default: "ID")))
@@ -522,7 +544,7 @@
   maintenance-in-05-cdb
   maintenance-in-06-cdb
   maintenance-in-09-cdb
-  maintenance-in-09-cdb
+  maintenance-in-08-cdb
 ))
 
 
