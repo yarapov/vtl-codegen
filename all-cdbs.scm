@@ -111,6 +111,40 @@
   #x00 "00h (Report Redundancy Groups)"
   #x01 "01h (Report Unassigned Redundancy Group Space)"
 
+  ;; redundancy group out service action
+  scc-2-table-82
+  #x00 "00h (Control Generation Of Check Data)"
+  #x07 "07h (Create/Modify Basic Redundancy Group)"
+  #x01 "01h (Create/Modify Redundancy Group)"
+  #x02 "02h (Delete Redundancy Group)"
+  #x03 "03h (Rebuild P_EXTENT)"
+  #x04 "04h (Rebuild Peripheral Device)"
+  #x05 "05h (Recalculate Check Data)"
+  #x06 "06h (Verify Check Data)"
+
+  ;; redundancy group methods
+  scc-2-table-71
+  #x00 "00h (No redundancy)"
+  #x01 "01h (Copy redundancy)"
+  #x02 "02h (XOR redundancy)"
+  #x03 "03h (P+Q redundancy)"
+  #x04 "04h (P+S redundancy)"
+  #x05 "05h (S redundancy)"
+
+  ;; create/modify
+  scc-2-table-87
+  #b00 "00b"
+  #b01 "01b"
+  #b10 "10b"
+  #b11 "11b"
+
+  ;; granularity of units
+  scc-2-table-76
+  #x00 "0h (Bit)"
+  #x01 "1h (Byte)"
+  #x02 "2h (2-Byte word)"
+  #x03 "3h (4-Byte word)"
+  #x04 "4h (Logical block)"
 ))
 
 
@@ -556,6 +590,238 @@
   (11      "Control" 0)))
 
 
+(define redundancy-group-out-cdb '(
+  name:    "REDUNDANCY_GROUP_OUT_CDB"
+  desc:    "Redundancy Group (Out)"
+  size:    16
+  parameters:
+  (0       "opcode" "0xBB")
+  (1       "Service Action" bits: 4 0 values: scc-2-table-82)
+  (2 10)
+  (11      "Control" 0)))
+
+
+(define redundancy-group-out-00-cdb '(
+  name:    "REDUNDANCY_GROUP_OUT_00_CDB"
+  desc:    "Control Generation Of Check Data"
+  tag:     "00"
+  cond:    "Service_Action == 0x00"
+  size:    16
+  parameters:
+  (0       "opcode" "0xBB")
+  (1       "Service Action" "0x00" bits: 4 0)
+  (2 3)
+  (4 5     "LUN_R")
+  (6 9)
+  (10      "DISCHK" bit: 3)
+  (10      "ALLRG" bit: 1)
+  (11      "Control" 0)))
+
+
+(define redundancy-group-out-07-cdb '(
+  name:    "REDUNDANCY_GROUP_OUT_07_CDB"
+  desc:    "Create/Modify Basic Redundancy Group"
+  tag:     "07"
+  cond:    "Service_Action == 0x07"
+  size:    16
+  parameters:
+  (0       "opcode" "0xBB")
+  (1       "Service Action" "0x07" bits: 4 0)
+  (2       "Redundancy Group Method" values: scc-2-table-71)
+  (3       "BUSPROC" bit: 7)
+  (3       "EQSPRD" bit: 4)
+  (4 5     "LUN_R")
+  (6 9     "List Length" "COMPUTED_AT_RUNTIME")
+  (10      "Create/Modify" bits: 7 6 values: scc-2-table-87)
+  (10      "Configure" bits: 5 4 values: ;; scc-2-table-86
+                                         #b00 "00b"
+                                         #b01 "01b"
+                                         #b10 "10b"
+                                         #b11 "11b")
+  (10      "IMMED" bit: 0)
+  (11      "Control" 0)))
+
+
+(define redundancy-group-out-07-plist '(
+  name:    "REDUNDANCY_GROUP_OUT_07_PLIST"
+  desc:    "Create/Modify Basic Redundancy Group Parameter List"
+  tag:     "07PL"
+  cond:    "Service_Action == 0x07"
+  parameters:
+  (0 3     "Capacity")
+  (4 5     "Bytes Per Block")
+  (6 7)))
+
+
+(define redundancy-group-out-07-descriptor '(
+  name:    "REDUNDANCY_GROUP_OUT_07_DESCRIPTOR"
+  desc:    "Create/Modify Peripheral Device Descriptor"
+  tag:     "07D"
+  cond:    "Service_Action == 0x07"
+  parameters:
+  (0 1     "LUN_P")
+  (2       "Weighting Of Protected Space + Check Data")
+  (3       "Percent Of Check Data")))
+
+
+(define redundancy-group-out-01-cdb '(
+  name:    "REDUNDANCY_GROUP_OUT_01_CDB"
+  desc:    "Create/Modify Redundancy Group"
+  tag:     "01"
+  cond:    "Service_Action == 0x01"
+  size:    16
+  parameters:
+  (0       "opcode" "0xBB")
+  (1       "Service Action" "0x01" bits: 4 0)
+  (2       "Redundancy Type Method" values: scc-2-table-71)
+  (3       "Granularity Of Units" bits: 3 0 values: scc-2-table-76)
+  (4 5     "LUN_R")
+  (6 9     "List Length" "COMPUTED_AT_RUNTIME")
+  (10      "Create/Modify" bits: 7 6 values: scc-2-table-87)
+  (10      "IMMED" bit: 0)
+  (11      "Control" 0)))
+
+
+(define redundancy-group-out-01-descriptor '(
+  name:    "REDUNDANCY_GROUP_OUT_01_DESCRIPTOR"
+  desc:    "Create/Modify P_EXTENT Descriptor"
+  tag:     "01D"
+  cond:    "Service_Action == 0x01"
+  fixme:   "byte 20, bit 7: STRSPARE"
+  parameters:
+  ;; scc-2-table-17
+  (0 1   "LUN_P")
+  (2 5   "Start LBA_P")
+  (6 9   "Number Of LBA_P")
+  (10 11 "Number Of Bytes Per LBA_P")
+  ;; scc-2-table-93
+  (12    "SETPAT" bit: 7)
+  (12    "Preserve" bit: 4)
+  (12    "DEFERCAL" bit: 0)
+  (13 14)
+  (15    "Protected Space Pattern")
+  (16 19 "Start Check Data Interleave Unit")
+  (20    "STRSPARE" bit: 7)
+  (20 23 "Number Of Units Of Check Data")
+  (24 27 "Number Of Units Of User Data")))
+
+
+(define redundancy-group-out-02-cdb '(
+  name:    "REDUNDANCY_GROUP_OUT_02_CDB"
+  desc:    "Delete Redundancy Group"
+  tag:     "02"
+  cond:    "Service_Action == 0x02"
+  size:    16
+  parameters:
+  (0       "opcode" "0xBB")
+  (1       "Service Action" "0x02" bits: 4 0)
+  (2 3)
+  (4 5     "LUN_R")
+  (6 10)
+  (11      "Control" 0)))
+
+
+(define redundancy-group-out-03-cdb '(
+  name:    "REDUNDANCY_GROUP_OUT_03_CDB"
+  desc:    "Rebuild P_EXTENT"
+  tag:     "03"
+  cond:    "Service_Action == 0x03"
+  size:    16
+  parameters:
+  (0       "opcode" "0xBB")
+  (1       "Service Action" "0x03" bits: 4 0)
+  (2 5)
+  (6 9     "List Length" "COMPUTED_AT_RUNTIME")
+  (10      "Rebuild" bits: 5 4 values: ;; scc-2-table-96
+                                       #b00 "00b"
+                                       #b01 "01b"
+                                       #b10 "10b")
+  (10      "IMMED" bit: 0)
+  (11      "Control" 0)))
+
+
+(define redundancy-group-out-03-plist '(
+  name:    "REDUNDANCY_GROUP_OUT_03_PLIST"
+  desc:    "Rebuild P_EXTENT Parameter List"
+  tag:     "03D"
+  cond:    "Service_Action == 0x03"
+  parameters:
+  ;; scc-2-table-17
+  (0 1     "LUN_P")
+  (2 5     "Start LBA_P")
+  (6 9     "Number Of LBA_P")
+  (10 11   "Number Of Bytes Per LBA_P")
+  ;; scc-2-table-93
+  (12 13)
+  (14 15   "LUN_R")))
+
+
+(define redundancy-group-out-04-cdb '(
+  name:    "REDUNDANCY_GROUP_OUT_04_CDB"
+  desc:    "Rebuild Peripheral Device"
+  tag:     "04"
+  cond:    "Service_Action == 0x04"
+  size:    16
+  parameters:
+  (0       "opcode" "0xBB")
+  (1       "Service Action" "0x04" bits: 4 0)
+  (2 5)
+  (6 9     "List Length" "COMPUTED_AT_RUNTIME")
+  (10      "Rebuild" bits: 5 4 values: ;; scc-2-table-96
+                                       #b00 "00b"
+                                       #b01 "01b"
+                                       #b10 "10b")
+  (10      "IMMED" bit: 0)
+  (11      "Control" 0)))
+
+
+(define redundancy-group-out-04-plist '(
+  name:    "REDUNDANCY_GROUP_OUT_04_PLIST"
+  desc:    "Rebuild Peripheral Device Parameter List"
+  tag:     "04D"
+  cond:    "Service_Action == 0x04"
+  parameters:
+  (0 1)
+  (2 3     "LUN_P" comment: "address of the peripheral device to be rebuilt")
+  (4 5)
+  (6 7     "LUN_R" comment: "address of the redundancy group that shall not be used to rebuild the peripheral device.")))
+
+
+(define redundancy-group-out-05-cdb '(
+  name:    "REDUNDANCY_GROUP_OUT_05_CDB"
+  desc:    "Recalculate Check Data"
+  tag:     "05"
+  cond:    "Service_Action == 0x05"
+  size:    16
+  parameters:
+  (0       "opcode" "0xBB")
+  (1       "Service Action" "0x05" bits: 4 0)
+  (2 3)
+  (4 5     "LUN_R")
+  (6 9)
+  (10      "ALLRG" bit: 1)
+  (10      "IMMED" bit: 0)
+  (11      "Control" 0)))
+
+
+(define redundancy-group-out-06-cdb '(
+  name:    "REDUNDANCY_GROUP_OUT_06_CDB"
+  desc:    "Verify Check Data"
+  tag:     "06"
+  cond:    "Service_Action == 0x06"
+  size:    16
+  parameters:
+  (0       "opcode" "0xBB")
+  (1       "Service Action" "0x06" bits: 4 0)
+  (2 3)
+  (4 5     "LUN_R")
+  (6 9)
+  (10      "CONTVER" bit: 3)
+  (10      "ALLRG" bit: 1)
+  (10      "IMMED" bit: 0)
+  (11      "Control" 0)))
+
+
 (define maintenance-in-00-xml-group (list
   visible: "Service Action" "0"
   members: maintenance-in-00-cdb))
@@ -719,10 +985,79 @@
 ))
 
 
+(define redundancy-group-out-00-xml-group (list
+  visible: "Service Action" 0
+  members: redundancy-group-out-00-cdb))
+
+(define redundancy-group-out-07-xml-group (list
+  visible: "Service Action" 7
+  members: redundancy-group-out-07-cdb
+           redundancy-group-out-07-plist
+           redundancy-group-out-07-descriptor))
+
+(define redundancy-group-out-01-xml-group (list
+  visible: "Service Action" 1
+  members: redundancy-group-out-01-cdb
+           redundancy-group-out-01-descriptor))
+
+(define redundancy-group-out-02-xml-group (list
+  visible: "Service Action" 2
+  members: redundancy-group-out-02-cdb))
+
+
+(define redundancy-group-out-03-xml-group (list
+  visible: "Service Action" 3
+  members: redundancy-group-out-03-cdb
+           redundancy-group-out-03-plist))
+
+(define redundancy-group-out-04-xml-group (list
+  visible: "Service Action" 4
+  members: redundancy-group-out-04-cdb
+           redundancy-group-out-04-plist))
+
+(define redundancy-group-out-05-xml-group (list
+  visible: "Service Action" 5
+  members: redundancy-group-out-05-cdb))
+
+(define redundancy-group-out-06-xml-group (list
+  visible: "Service Action" 6
+  members: redundancy-group-out-06-cdb))
+
+
+(define *redundancy-group-out-all-cdbs* (list
+  redundancy-group-out-cdb
+  redundancy-group-out-00-cdb
+  redundancy-group-out-07-cdb
+  redundancy-group-out-07-plist
+  redundancy-group-out-07-descriptor
+  redundancy-group-out-01-cdb
+  redundancy-group-out-01-descriptor
+  redundancy-group-out-02-cdb
+  redundancy-group-out-03-cdb
+  redundancy-group-out-03-plist
+  redundancy-group-out-04-cdb
+  redundancy-group-out-04-plist
+  redundancy-group-out-05-cdb
+  redundancy-group-out-06-cdb
+))
+
+
+(define *redundancy-group-out-all-xml-groups* (list
+  redundancy-group-out-00-xml-group
+  redundancy-group-out-07-xml-group
+  redundancy-group-out-01-xml-group
+  redundancy-group-out-02-xml-group
+  redundancy-group-out-03-xml-group
+  redundancy-group-out-04-xml-group
+  redundancy-group-out-05-xml-group
+  redundancy-group-out-06-xml-group
+))
+
 (define *all-cdbs* (append 
   *maintenance-in-all-cdbs* 
   *maintenance-out-all-cdbs*
   *redundancy-group-in-all-cdbs*
+  *redundancy-group-out-all-cdbs*
 ))
 
 
@@ -730,6 +1065,7 @@
   *maintenance-in-all-xml-groups*
   *maintenance-out-all-xml-groups*
   *redundancy-group-in-all-xml-groups*
+  *redundancy-group-out-all-xml-groups*
 ))
 
 
