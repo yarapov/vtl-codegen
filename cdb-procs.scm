@@ -653,6 +653,11 @@
 (define (make-redundancy-group-in-xml) (make-xml redundancy-group-in-cdb *redundancy-group-in-all-xml-groups*))
 (define (make-redundancy-group-in-c) (make-c *redundancy-group-in-all-cdbs*))
 
+(define (make-redundancy-group-out-xml) (make-xml redundancy-group-out-cdb *redundancy-group-out-all-xml-groups*))
+(define (make-redundancy-group-out-c) (make-c *redundancy-group-out-all-cdbs*))
+
+(define (make-spare-in-xml) (make-xml spare-in-cdb *spare-in-all-xml-groups*))
+(define (make-spare-in-c) (make-c *spare-in-all-cdbs*))
 
 (define (helpme)
   (for-each (curry format #t "~a~%")
@@ -662,6 +667,10 @@
               "make-maintenance-out-c"
               "make-redundancy-group-in-xml"
               "make-redundancy-group-in-c"
+              "make-redundancy-group-out-xml"
+              "make-redundancy-group-out-c"
+              "make-spare-in-xml"
+              "make-spare-in-c"
               )))
 
 ;; end of file

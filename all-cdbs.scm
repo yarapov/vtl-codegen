@@ -145,6 +145,14 @@
   #x02 "2h (2-Byte word)"
   #x03 "3h (4-Byte word)"
   #x04 "4h (Logical block)"
+
+
+  ;; spare in service action
+  scc-2-table-150
+  #x00 "00h (Report P_EXTENT Spare)"
+  #x01 "01h (Report Peripheral Device/Component Device Spare)"
+
+
 ))
 
 
@@ -822,6 +830,50 @@
   (11      "Control" 0)))
 
 
+(define spare-in-cdb '(
+  name:    "SPARE_IN_CDB"
+  desc:    "Spare In"
+  size:    16
+  parameters:
+  (0       "opcode" "0xBC")
+  (1       "Service Action" bits: 4 0 values: scc-2-table-150)
+  (2 10)
+  (11      "Control" 0)))
+
+
+(define spare-in-00-cdb '(
+  name:    "SPARE_IN_00_CDB"
+  desc:    "Report P_EXTENT Spare"
+  tag:     "00"
+  cond:    "Service_Action == 0x00"
+  size:    16
+  parameters:
+  (0       "opcode" "0xBC")
+  (1       "Service Action" "0x00" bits: 4 0)
+  (2 3)
+  (4 5     "LUN_S")
+  (6 9     "Allocation Length" default: 256)
+  (10      "RPTSEL" bit: 0)
+  (11      "Control" 0)))
+
+
+(define spare-in-01-cdb '(
+  name:    "SPARE_IN_01_CDB"
+  desc:    "Report Peripheral Device/Component Device Spare"
+  tag:     "01"
+  cond:    "Service_Action == 0x01"
+  size:    16
+  parameters:
+  (0       "opcode" "0xBC")
+  (1       "Service Action" "0x01" bits: 4 0)
+  (2 3)
+  (4 5     "LUN_S")
+  (6 9     "Allocation Length" default: 256)
+  (10      "PORCSEL" bit: 1)
+  (10      "RPTSEL" bit: 0)
+  (11      "Control" 0)))
+
+
 (define maintenance-in-00-xml-group (list
   visible: "Service Action" "0"
   members: maintenance-in-00-cdb))
@@ -1053,11 +1105,36 @@
   redundancy-group-out-06-xml-group
 ))
 
+
+(define spare-in-00-xml-group (list
+  visible: "Service Action" 0
+  members: spare-in-00-cdb))
+
+(define spare-in-01-xml-group (list
+  visible: "Service Action" 1
+  members: spare-in-01-cdb))
+
+
+(define *spare-in-all-cdbs* (list
+  spare-in-cdb
+  spare-in-00-cdb
+  spare-in-01-cdb
+))
+
+
+(define *spare-in-all-xml-groups* (list
+  spare-in-00-xml-group
+  spare-in-01-xml-group
+))
+
+
+
 (define *all-cdbs* (append 
   *maintenance-in-all-cdbs* 
   *maintenance-out-all-cdbs*
   *redundancy-group-in-all-cdbs*
   *redundancy-group-out-all-cdbs*
+  *spare-in-all-cdbs*
 ))
 
 
@@ -1066,6 +1143,7 @@
   *maintenance-out-all-xml-groups*
   *redundancy-group-in-all-xml-groups*
   *redundancy-group-out-all-xml-groups*
+  *spare-in-all-xml-groups*
 ))
 
 
