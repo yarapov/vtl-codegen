@@ -665,6 +665,8 @@
 (define (make-volume-set-in-xml) (make-xml volume-set-in-cdb *volume-set-in-all-xml-groups*))
 (define (make-volume-set-in-c) (make-c *volume-set-in-all-cdbs*))
 
+(define (make-volume-set-out-xml) (make-xml volume-set-out-cdb *volume-set-out-all-xml-groups*))
+(define (make-volume-set-out-c) (make-c *volume-set-out-all-cdbs*))
 
 (define (helpme)
   (for-each (curry format #t "~a~%")
