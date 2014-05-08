@@ -152,6 +152,11 @@
   #x00 "00h (Report P_EXTENT Spare)"
   #x01 "01h (Report Peripheral Device/Component Device Spare)"
 
+  ;; spare out service action
+  scc-2-table-159
+  #x00 "00h (Create/Modify P_EXTENT Spare)"
+  #x01 "01h (Create/Modify Peripheral Device/Component Device Spare)"
+  #x02 "02h (Delete Spare)"
 
 ))
 
@@ -874,6 +879,138 @@
   (11      "Control" 0)))
 
 
+(define spare-out-cdb '(
+  name:    "SPARE_OUT_CDB"
+  desc:    "Spare Out"
+  size: 16
+  parameters:
+  (0       "opcode" "0xBD")
+  (1       "Service Action" bits: 4 0 values: scc-2-table-159)
+  (2 10)
+  (11      "Control" 0)))
+
+
+(define spare-out-00-cdb '(
+  name:    "SPARE_OUT_00_CDB"
+  desc:    "Create/Modify P_EXTENT Spare"
+  tag:     "00"
+  cond:    "Service_Action == 0x00"
+  size: 16
+  parameters:
+  (0       "opcode" "0xBD")
+  (1       "Service Action" "0x00" bits: 4 0)
+  (2 3)
+  (4 5     "LUN_S")
+  (6 9     "List Length" "COMPUTED_AT_RUNTIME")
+  (10      "Create/Modify" bits: 7 6 values: #b00 "00b"
+                                             #b01 "01b"
+                                             #b10 "10b")
+  (10      "Cover" bits: 5 4 values: #b00 "00b"
+                                     #b01 "01b"
+                                     #b10 "10b"
+                                     #b11 "11b")
+  (10      "IMMED" bit: 0)
+  (11      "Control" 0)))
+
+
+(define spare-out-00-plist '(
+  fixme:   "single covered LUN_R, single covered P_EXTENT"
+  name:    "SPARE_OUT_00_PLIST"
+  desc:    "Create/Modify P_EXTENT Spare Parameter List"
+  tag:     "00PL"
+  cond:    "Service_Action == 0x00"
+  parameters:
+  ;; scc-2-table-17
+  (0 1     "LUN_P")
+  (2 5     "Start LBA_P")
+  (6 9     "Number Of LBA_P")
+  (10 11   "Number Of Bytes Per LBA_P")
+  ;; scc-2-table-163
+  (12 13   "Covered List Length" "n-13")
+  (14 15   "Covered LUN_R List Length" "m-15")))
+
+
+(define spare-out-00-covered-lun-r '(
+  fixme:   "xml: make it group"
+  name:    "SPARE_OUT_00_COVERED_LUN_R"
+  desc:    "Covered LUN_R"
+  tag:     "00CLR"
+  cond:    "Service_Action == 0x00"
+  parameters:
+  (0 1)
+  (2 3     "Covered LUN_R")))
+
+
+(define spare-out-00-covered-p-extent-descriptor '(
+  fixme:   "xml: make it group"
+  name:    "SPARE_OUT_00_COVERED_DESCRIPTOR"
+  desc:    "Covered P_EXTENT Descriptor"
+  tag:     "00D"
+  cond:    "Service_Action == 0x00"
+  parameters:
+  ;; scc-2-table-17
+  (0 1     "LUN_P")
+  (2 5     "Start LBA_P")
+  (6 9     "Number Of LBA_P")
+  (10 11   "Number Of Bytes Per LBA_P")))
+
+
+(define spare-out-01-cdb '(
+  name:    "SPARE_OUT_01_CDB"
+  desc:    "Create/Modify Peripheral Device/Component Device Spare"
+  tag:     "01"
+  cond:    "Service_Action == 0x01"
+  size: 16
+  parameters:
+  (0       "opcode" "0xBD")
+  (1       "Service Action" "0x01" bits: 4 0)
+  (2 3     "LUN_P/LUN_C")
+  (4 5     "LUN_S")
+  (6 9     "List Length" "COMPUTED_AT_RUNTIME")
+  (10      "Create/Modify" bits: 7 6 values: #b00 "00b" ;; scc-2-table-166
+                                             #b01 "01b"
+                                             #b10 "10b")
+  (10      "Cover" bits: 5 4 values: #b00 "00b" ;; scc-2-table-165
+                                     #b01 "01b"
+                                     #b10 "10b"
+                                     #b11 "11b")
+  (10      "PORCSEL" bit: 1)
+  (10      "IMMED" bit: 0)
+  (11      "Control" 0)))
+
+
+(define spare-out-01-descriptor '(
+  name:    "SPARE_OUT_01_DESCRIPROT"
+  desc:    "Covered Logical Unit Descriptor"
+  tag:     "01D"
+  cond:    "Service_Action == 0x01"
+  parameters:
+  ;; scc-2-table-157
+  (0)
+  (1       "Logical Unit Type" bits: 3 0 
+           values: ;; scc-2-table-158
+           #x0 "0h (Physical logical unit (peripheral device))"
+           #x4 "4h (Component logical unit (component device))"
+           #x5 "5h (Redundancy Group)")
+  (2 3     "LUN")))
+
+
+(define spare-out-02-cdb '(
+  name:    "SPARE_OUT_02_CDB"
+  desc:    "Delete Spare"
+  cond:    "Service_Action == 0x02"
+  tag:     "02"
+  size:    16
+  parameters:
+  (0       "opcode" "0xBD")
+  (1       "Service Action" "0x02" bits: 4 0)
+  (2 3)
+  (4 5     "LUN_S")
+  (6 10)
+  (11      "Control" 0)))
+
+
+
 (define maintenance-in-00-xml-group (list
   visible: "Service Action" "0"
   members: maintenance-in-00-cdb))
@@ -1128,6 +1265,39 @@
 ))
 
 
+(define spare-out-00-xml-group (list
+  visible: "Service Action" 0
+  members: spare-out-00-cdb
+           spare-out-00-plist
+           spare-out-00-covered-lun-r
+           spare-out-00-covered-p-extent-descriptor))
+
+(define spare-out-01-xml-group (list
+  visible: "Service Action" 1
+  members: spare-out-01-cdb
+           spare-out-01-descriptor))
+ 
+(define spare-out-02-xml-group (list
+  visible: "Service Action" 2
+  members: spare-out-02-cdb))
+
+
+(define *spare-out-all-cdbs* (list
+  spare-out-cdb
+  spare-out-00-cdb
+  spare-out-00-plist
+  spare-out-00-covered-lun-r
+  spare-out-00-covered-p-extent-descriptor
+  spare-out-01-cdb
+  spare-out-01-descriptor
+  spare-out-02-cdb))
+
+
+(define *spare-out-all-xml-groups* (list
+  spare-out-00-xml-group
+  spare-out-01-xml-group
+  spare-out-02-xml-group))
+
 
 (define *all-cdbs* (append 
   *maintenance-in-all-cdbs* 
@@ -1135,6 +1305,7 @@
   *redundancy-group-in-all-cdbs*
   *redundancy-group-out-all-cdbs*
   *spare-in-all-cdbs*
+  *spare-out-all-cdbs*
 ))
 
 
@@ -1144,6 +1315,7 @@
   *redundancy-group-in-all-xml-groups*
   *redundancy-group-out-all-xml-groups*
   *spare-in-all-xml-groups*
+  *spare-out-all-xml-groups*
 ))
 
 

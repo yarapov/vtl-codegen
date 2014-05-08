@@ -659,6 +659,10 @@
 (define (make-spare-in-xml) (make-xml spare-in-cdb *spare-in-all-xml-groups*))
 (define (make-spare-in-c) (make-c *spare-in-all-cdbs*))
 
+(define (make-spare-out-xml) (make-xml spare-out-cdb *spare-out-all-xml-groups*))
+(define (make-spare-out-c) (make-c *spare-out-all-cdbs*))
+
+
 (define (helpme)
   (for-each (curry format #t "~a~%")
             '("make-maintenance-in-xml"
