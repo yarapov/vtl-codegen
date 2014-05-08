@@ -662,6 +662,9 @@
 (define (make-spare-out-xml) (make-xml spare-out-cdb *spare-out-all-xml-groups*))
 (define (make-spare-out-c) (make-c *spare-out-all-cdbs*))
 
+(define (make-volume-set-in-xml) (make-xml volume-set-in-cdb *volume-set-in-all-xml-groups*))
+(define (make-volume-set-in-c) (make-c *volume-set-in-all-cdbs*))
+
 
 (define (helpme)
   (for-each (curry format #t "~a~%")

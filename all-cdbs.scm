@@ -158,6 +158,12 @@
   #x01 "01h (Create/Modify Peripheral Device/Component Device Spare)"
   #x02 "02h (Delete Spare)"
 
+  ;; volume set in service actions
+  scc-2-table-103
+  #x03 "03h (Report Basic Volume Set)"
+  #x02 "02h (Report Storage Array Configuration)"
+  #x01 "01h (Report Unassigned Volume Sets)"
+  #x00 "00h (Report Volume Sets)"
 ))
 
 
@@ -175,6 +181,18 @@
   (6 9   "Number Of LBA_P")
   (10 11 "Number Of Bytes Per LBA_P"))
 
+  ;; volume set out service actions
+  scc-2-table-120
+  #x07 "07h (Assign LUN_V)"
+  #x00 "00h (Control Generation Of Check Data)"
+  #x01 "01h (Control Write Operations)"
+  #x09 "09h (Create/Modify Basic Volume Set)"
+  #x08 "08h (Create/Modify Storage Array Configuration)"
+  #x02 "02h (Create/Modify Volume Set)"
+  #x06 "06h (Deassign LUN_V)"
+  #x03 "03h (Delete Volume Set)"
+  #x04 "04h (Recalculate Volume Set Check Data)"
+  #x05 "05h (Verifiy Volume Set Check Data)"
 ))
 
 
@@ -980,7 +998,7 @@
 
 
 (define spare-out-01-descriptor '(
-  name:    "SPARE_OUT_01_DESCRIPROT"
+  name:    "SPARE_OUT_01_DESCRIPTOR"
   desc:    "Covered Logical Unit Descriptor"
   tag:     "01D"
   cond:    "Service_Action == 0x01"
@@ -1007,6 +1025,156 @@
   (2 3)
   (4 5     "LUN_S")
   (6 10)
+  (11      "Control" 0)))
+
+
+(define volume-set-in-cdb '(
+  name:    "VOLUME_SET_IN_CDB"
+  desc:    "Volume Set In"
+  size:    16
+  parameters:
+  (0       "opcode" "0xBE")
+  (1       "Service Action" bits: 4 0 values: scc-2-table-103)
+  (2 10)
+  (11      "Control" 0)))
+
+
+(define volume-set-in-03-cdb '(
+  name:    "VOLUME_SET_IN_03_CDB"
+  desc:    "Report Basic Volume Set"
+  tag:     "03"
+  cond:    "Service_Action == 0x03"
+  size:    16
+  parameters:
+  (0       "opcode" "0xBE")
+  (1       "Service Action" "0x03" bits: 4 0)
+  (2 3)
+  (4 5     "LUN_V")
+  (6 9     "Allocation Length" default: 256)
+  (10)
+  (11      "Control" 0)))
+
+
+(define volume-set-in-02-cdb '(
+  fixme:   "exactly the same as VOLUME_SET_IN_03_CDB"
+  name:    "VOLUME_SET_IN_02_CDB"
+  desc:    "Report Storage Array Configuration"
+  tag:     "02"
+  cond:    "Service_Action == 0x02"
+  size:    16
+  parameters:
+  (0       "opcode" "0xBE")
+  (1       "Service Action" "0x02" bits: 4 0)
+  (2 3)
+  (4 5     "LUN_V")
+  (6 9     "Allocation Length" default: 256)
+  (10)
+  (11      "Control" 0)))
+
+
+(define volume-set-in-01-cdb '(
+  name:    "VOLUME_SET_IN_01_CDB"
+  desc:    "Report Unassigned Volume Sets"
+  tag:     "01"
+  cond:    "Service_Action == 0x01"
+  size:    16
+  parameters:
+  (0       "opcode" "0xBE")
+  (1       "Service Action" "0x01" bits: 4 0)
+  (2 5)
+  (6 9     "Allocation Length" default: 256)
+  (10)
+  (11      "Control" 0)))
+
+
+(define volume-set-in-00-cdb '(
+  fixme:   "exactly the same as VOLUME_SET_IN_03_CDB"
+  name:    "VOLUME_SET_IN_00_CDB"
+  desc:    "Report Volume Sets"
+  tag:     "00"
+  cond:    "Service_Action == 0x00"
+  size:    16
+  parameters:
+  (0       "opcode" "0xBE")
+  (1       "Service Action" "0x00" bits: 4 0)
+  (2 3)
+  (4 5     "LUN_V")
+  (6 9     "Allocation Length" default: 256)
+  (10)
+  (11      "Control" 0)))
+
+
+(define volume-set-out-cdb '(
+  name:    "VOLUME_SET_OUT_CDB"
+  desc:    "Volume Set Out"
+  size:    16
+  parameters:
+  (0       "opcode" "0xBF")
+  (1       "Service Action" bits: 4 0 values: scc-2-table-120)
+  (2 10)
+  (11      "Control" 0)))
+
+
+(define volume-set-out-07-cdb '(
+  name:    "VOLUME_SET_OUT_07_CDB"
+  desc:    "Allign LUN_V"
+  cond:    "Service_Action == 0x07"
+  tag:     "07"
+  size:    16
+  parameters:
+  (0       "opcode" "0xBF")
+  (1       "Service Action" "0x07" bits: 4 0)
+  (2 3)
+  (4 5     "LUN_V")
+  (6 9     "List Length" "COMPUTED_AT_RUNTIME")
+  (10      "Enable Range" bits: 2 1 values: ;; scc-2-table-122
+                                            #b00 "00b"
+                                            #b01 "01b"
+                                            #b10 "10b")
+  (11      "Control" 0)))
+
+
+(define volume-set-out-07-plist '(
+  fixme:   "IDENTIFIER is used when 'Enable Range'==01b"
+  name:    "VOLUME_SET_OUT_07_PLIST"
+  desc:    "Identifier Parameter List"
+  cond:    "Service_Action == 0x07"
+  tag:     "07PL"
+  parameters:
+  (0 3     "Identifier List Length" "n-3")))
+
+
+(define volume-set-out-00-cdb '(
+  name:    "VOLUME_SET_OUT_00_CDB"
+  desc:    "Control Generation Of Check Data"
+  tag:     "00"
+  cond:    "Service_Action == 0x00"
+  size:    16
+  parameters:
+  (0       "opcode" "0xBF")
+  (1       "Service Action" "0x00" bits: 4 0)
+  (2 3)
+  (4 5     "LUN_V")
+  (6 9)
+  (10      "DISCHK" bit: 3)
+  (10      "ALLVLU" bit: 1)
+  (11      "Control" 0)))
+
+
+(define volume-set-out-01-cdb '(
+  name:    "VOLUME_SET_OUT_01_CDB"
+  desc:    "Control Write Operations"
+  tag:     "01"
+  cond:    "Service_Action == 0x01"
+  size:    16
+  parameters:
+  (0       "opcode" "0xBF")
+  (1       "Service Action" "0x01" bits: 4 0)
+  (2 3)
+  (4 5     "LUN_V")
+  (6 9)
+  (10      "DISWR" bit: 3)
+  (10      "ALLVLU" bit: 1)
   (11      "Control" 0)))
 
 
@@ -1276,7 +1444,7 @@
   visible: "Service Action" 1
   members: spare-out-01-cdb
            spare-out-01-descriptor))
- 
+
 (define spare-out-02-xml-group (list
   visible: "Service Action" 2
   members: spare-out-02-cdb))
@@ -1299,6 +1467,38 @@
   spare-out-02-xml-group))
 
 
+(define volume-set-in-03-xml-group (list
+  visible: "Service Action" 3
+  members: volume-set-in-03-cdb))
+
+(define volume-set-in-02-xml-group (list
+  visible: "Service Action" 2
+  members: volume-set-in-02-cdb))
+
+(define volume-set-in-01-xml-group (list
+  visible: "Service Action" 1
+  members: volume-set-in-01-cdb))
+
+(define volume-set-in-00-xml-group (list
+  visible: "Service Action" 0
+  members: volume-set-in-00-cdb))
+
+
+(define *volume-set-in-all-cdbs* (list
+  volume-set-in-cdb
+  volume-set-in-03-cdb
+  volume-set-in-02-cdb
+  volume-set-in-01-cdb
+  volume-set-in-00-cdb))
+
+
+(define *volume-set-in-all-xml-groups* (list
+  volume-set-in-03-xml-group
+  volume-set-in-02-xml-group
+  volume-set-in-01-xml-group
+  volume-set-in-00-xml-group))
+
+
 (define *all-cdbs* (append 
   *maintenance-in-all-cdbs* 
   *maintenance-out-all-cdbs*
@@ -1306,6 +1506,7 @@
   *redundancy-group-out-all-cdbs*
   *spare-in-all-cdbs*
   *spare-out-all-cdbs*
+  *volume-set-in-all-cdbs*
 ))
 
 
@@ -1316,6 +1517,7 @@
   *redundancy-group-out-all-xml-groups*
   *spare-in-all-xml-groups*
   *spare-out-all-xml-groups*
+  *volume-set-in-all-xml-groups*
 ))
 
 
