@@ -1117,7 +1117,7 @@
 
 (define volume-set-out-07-cdb '(
   name:    "VOLUME_SET_OUT_07_CDB"
-  desc:    "Allign LUN_V"
+  desc:    "Assign LUN_V"
   cond:    "Service_Action == 0x07"
   tag:     "07"
   size:    16
