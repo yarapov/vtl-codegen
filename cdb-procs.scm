@@ -668,7 +668,7 @@
 (define (make-volume-set-out-xml) (make-xml volume-set-out-cdb *volume-set-out-all-xml-groups*))
 (define (make-volume-set-out-c) (make-c *volume-set-out-all-cdbs*))
 
-(define (make-access-control-in-xml) (make-xml access-control-in-cdb *volume-set-in-all-xml-groups*))
+(define (make-access-control-in-xml) (make-xml access-control-in-cdb *access-control-in-all-xml-groups*))
 (define (make-access-control-in-c) (make-c *access-control-in-all-cdbs*))
 
 (define (helpme)

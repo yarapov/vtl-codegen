@@ -164,22 +164,6 @@
   #x02 "02h (Report Storage Array Configuration)"
   #x01 "01h (Report Unassigned Volume Sets)"
   #x00 "00h (Report Volume Sets)"
-))
-
-
-(define *cdb-structurs-tables* '(
-  ;; logical unit descriptor
-  scc-2-table-25 (
-  (0)
-  (1     "Logical Unit Type" bits: 3 0 values: scc-2-table-26)
-  (2 3   "LUN"))
-
-  ;; p_extent descriptor
-  scc-2-table-17 (
-  (0 1   "LUN_P")
-  (2 5   "Start LBA_P")
-  (6 9   "Number Of LBA_P")
-  (10 11 "Number Of Bytes Per LBA_P"))
 
   ;; volume set out service actions
   scc-2-table-120
@@ -201,6 +185,24 @@
   #x02 "02h (Report Access Controls Log)"
   #x03 "03h (Report Override Lockout Timer)"
   #x04 "04h (Request Proxy Token)"
+
+))
+
+
+(define *cdb-structurs-tables* '(
+  ;; logical unit descriptor
+  scc-2-table-25 (
+  (0)
+  (1     "Logical Unit Type" bits: 3 0 values: scc-2-table-26)
+  (2 3   "LUN"))
+
+  ;; p_extent descriptor
+  scc-2-table-17 (
+  (0 1   "LUN_P")
+  (2 5   "Start LBA_P")
+  (6 9   "Number Of LBA_P")
+  (10 11 "Number Of Bytes Per LBA_P"))
+
 ))
 
 
@@ -1940,13 +1942,13 @@
 (define access-control-in-00-xml-group (list
   visible: "Service Action" 0 members: access-control-in-00-cdb))
 (define access-control-in-01-xml-group (list
-  visible: "Service Action" 0 members: access-control-in-01-cdb))
+  visible: "Service Action" 1 members: access-control-in-01-cdb))
 (define access-control-in-02-xml-group (list
-  visible: "Service Action" 0 members: access-control-in-02-cdb))
+  visible: "Service Action" 2 members: access-control-in-02-cdb))
 (define access-control-in-03-xml-group (list
-  visible: "Service Action" 0 members: access-control-in-03-cdb))
+  visible: "Service Action" 3 members: access-control-in-03-cdb))
 (define access-control-in-04-xml-group (list
-  visible: "Service Action" 0 members: access-control-in-04-cdb))
+  visible: "Service Action" 4 members: access-control-in-04-cdb))
 
 
 (define *access-control-in-all-cdbs* (list
