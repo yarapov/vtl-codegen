@@ -193,6 +193,14 @@
   #x03 "03h (Delete Volume Set)"
   #x04 "04h (Recalculate Volume Set Check Data)"
   #x05 "05h (Verifiy Volume Set Check Data)"
+
+  ;; access control in service actions
+  spc-4-table-509
+  #x00 "00h (Report ACL)"
+  #x01 "01h (Report LU Descriptors)"
+  #x02 "02h (Report Access Controls Log)"
+  #x03 "03h (Report Override Lockout Timer)"
+  #x04 "04h (Request Proxy Token)"
 ))
 
 
@@ -1431,6 +1439,97 @@
   (4 7     "Number Of LBA_V")))
 
 
+(define access-control-in-cdb '(
+  name:    "ACCESS_CONTROL_IN_CDB"
+  desc:    "Access Control In"
+  size:    16
+  parameters:
+  (0       "opcode" "0x86")
+  (1       "Service Action" bits: 4 0 values: spc-4-table-509)
+  (2 14)
+  (15      "Control" 0)))
+
+
+(define access-control-in-00-cdb '(
+  name:    "ACCESS_CONTROL_IN_00_CDB"
+  desc:    "Report ACL"
+  tag:     "00"
+  cond:    "Service_Action == 0x00"
+  size:    16
+  parameters:
+  (0       "opcode" "0x86")
+  (1       "Service Action" "0x00" bits: 4 0)
+  (2 9     "Management Identifier Key")
+  (10 13   "Allocation Length" default: 256)
+  (14)
+  (15      "Control" 0)))
+
+
+(define access-control-in-01-cdb '(
+  fixme:   "exactly the same as ACCESS_CONTROL_IN_00_CDB"
+  name:    "ACCESS_CONTROL_IN_01_CDB"
+  desc:    "Report LU Descriptors"
+  tag:     "01"
+  cond:    "Service_Action == 0x01"
+  size:    16
+  parameters:
+  (0       "opcode" "0x86")
+  (1       "Service Action" "0x01" bits: 4 0)
+  (2 9     "Management Identifier Key")
+  (10 13   "Allocation Length" default: 256)
+  (14)
+  (15      "Control" 0)))
+
+
+(define access-control-in-02-cdb '(
+  name:    "ACCESS_CONTROL_IN_02_CDB"
+  desc:    "Report Access Control Log"
+  tag:     "02"
+  cond:    "Service_Action == 0x02"
+  size:    16
+  parameters:
+  (0       "opcode" "0x86")
+  (1       "Service Action" "0x02" bits: 4 0)
+  (2 9     "Management Identifier Key")
+  (10      "Log Portion" bits: 1 0 values: #b00 "00b (Key Overrides portion)"
+                                           #b01 "01b (Invalid Keys portion)"
+                                           #b10 "10b (ACL LUN Conflicts portion)")
+  (11)
+  (12 13   "Allocation Length" default: 256)
+  (14)
+  (15      "Control" 0)))
+
+
+(define access-control-in-03-cdb '(
+  fixme:   "exactly the same as ACCESS_CONTROL_IN_00_CDB"
+  name:    "ACCESS_CONTROL_IN_03_CDB"
+  desc:    "Report Override Lockout Timer"
+  tag:     "03"
+  cond:    "Service_Action == 0x03"
+  size:    16
+  parameters:
+  (0       "opcode" "0x86")
+  (1       "Service Action" "0x03" bits: 4 0)
+  (2 9     "Management Identifier Key")
+  (10 13   "Allocation Length" default: 256)
+  (14)
+  (15      "Control" 0)))
+
+
+(define access-control-in-04-cdb '(
+  name:    "ACCESS_CONTROL_IN_04_CDB"
+  desc:    "Request Proxy Token"
+  tag:     "04"
+  cond:    "Service_Action == 0x04"
+  size:    16
+  parameters:
+  (0       "opcode" "0x86")
+  (1       "Service Action" "0x04" bits: 4 0)
+  (2 9     "LUN Value")
+  (10 13   "Allocation Length" default: 256)
+  (14)
+  (15      "Control" 0)))
+
 
 (define maintenance-in-00-xml-group (list
   visible: "Service Action" "0"
@@ -1838,6 +1937,35 @@
   volume-set-out-05-xml-group))
 
 
+(define access-control-in-00-xml-group (list
+  visible: "Service Action" 0 members: access-control-in-00-cdb))
+(define access-control-in-01-xml-group (list
+  visible: "Service Action" 0 members: access-control-in-01-cdb))
+(define access-control-in-02-xml-group (list
+  visible: "Service Action" 0 members: access-control-in-02-cdb))
+(define access-control-in-03-xml-group (list
+  visible: "Service Action" 0 members: access-control-in-03-cdb))
+(define access-control-in-04-xml-group (list
+  visible: "Service Action" 0 members: access-control-in-04-cdb))
+
+
+(define *access-control-in-all-cdbs* (list
+  access-control-in-cdb
+  access-control-in-00-cdb
+  access-control-in-01-cdb
+  access-control-in-02-cdb
+  access-control-in-03-cdb
+  access-control-in-04-cdb))
+
+
+(define *access-control-in-all-xml-groups* (list
+  access-control-in-00-xml-group
+  access-control-in-01-xml-group
+  access-control-in-02-xml-group
+  access-control-in-03-xml-group
+  access-control-in-04-xml-group))
+
+
 (define *all-cdbs* (append 
   *maintenance-in-all-cdbs* 
   *maintenance-out-all-cdbs*
@@ -1847,6 +1975,7 @@
   *spare-out-all-cdbs*
   *volume-set-in-all-cdbs*
   *volume-set-out-all-cdbs*
+  *access-control-in-all-cdbs*
 ))
 
 
@@ -1859,6 +1988,7 @@
   *spare-out-all-xml-groups*
   *volume-set-in-all-xml-groups*
   *volume-set-out-all-xml-groups*
+  *access-control-in-all-xml-groups*
 ))
 
 
