@@ -1826,7 +1826,7 @@
   (0       "opcode" "0xA4")
   (1       "Service Action" "0x0F" bits: 4 0)
   (2 5)
-  (6 9     "Parameter List Length" "sizeof( SET_TIMESTAMP_PLIST )")
+  (6 9     "Parameter List Length" "sizeof( SET_TIMESTAMP_CDB_PLIST )")
   (10)
   (11      "Control" 0)))
 
