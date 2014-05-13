@@ -671,6 +671,8 @@
 (define (make-access-control-in-xml) (make-xml access-control-in-cdb *access-control-in-all-xml-groups*))
 (define (make-access-control-in-c) (make-c *access-control-in-all-cdbs*))
 
+(define (make-access-control-out-c) (make-c *access-control-out-all-cdbs*))
+
 (define (helpme)
   (for-each (curry format #t "~a~%")
             '("make-maintenance-in-xml"

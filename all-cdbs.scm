@@ -186,6 +186,19 @@
   #x03 "03h (Report Override Lockout Timer)"
   #x04 "04h (Request Proxy Token)"
 
+  ;; access control out service actins
+  spc-4-table-534
+  #x00 "00h (Manage ACL)"
+  #x01 "01h (Disable Access Controls)"
+  #x02 "02h (Access ID Enroll)"
+  #x03 "03h (Cancel Enrollment)"
+  #x04 "04h (Clear Access Controls Log)"
+  #x05 "05h (Manage Override Lockout Timer)"
+  #x06 "06h (Override Mgmt ID Key)"
+  #x07 "07h (Revoke Proxy Token)"
+  #x08 "08h (Revoke All Proxy Tokens)"
+  #x09 "09h (Assign Proxy LUN)"
+  #x0a "0ah (Release Proxy LUN)"
 ))
 
 
@@ -1533,6 +1546,247 @@
   (15      "Control" 0)))
 
 
+(define access-control-out-cdb '(
+  name:    "ACCESS_CONTROL_OUT_CDB"
+  desc:    "Access Control Out"
+  size:    16
+  parameters:
+  (0       "opcode" "0x87")
+  (1       "Service Action" bits: 4 0 values: spc-4-table-534)
+  (2 9)
+  (10 13   "Parameter List Length")
+  (14)
+  (15      "Control" 0)))
+
+
+(define access-control-out-00-cdb '(
+  name:    "ACCESS_CONTROL_OUT_00_CDB"
+  desc:    "Manage ACL"
+  cond:    "Service_Action == 0x00"
+  size:    16
+  tag:     "00"
+  parameters:
+  (0       "opcode" "0x87")
+  (1       "Service Action" "0x00" bits: 4 0)
+  (2 9)
+  (10 13   "Parameter List Length" "COMPUTED_AT_RUNTIME")
+  (14)
+  (15      "Control" 0)))
+
+
+(define access-control-out-00-plist '(
+  name:    "ACCESS_CONTROL_OUT_00_PLIST"
+  desc:    "Manage ACL Parameter List"
+  tag:     "00PL"
+  cond:    "Service_Action == 0x00"
+  parameters:
+  (0 3)
+  (4 11    "Management Identifier Key")
+  (12 19   "New Management Idetifier Key")
+  (20)
+  (21      "FLUSH" bit: 7)
+  (22 23)
+  (24 27   "DL Generation")))
+
+
+(define access-control-out-00-ace-page-code '(
+  fixme:   "PHONY"
+  name:    "ACCESS_CONTROL_OUT_00_ACE_PAGE"
+  desc:    "ACE Page"
+  tag:     "00ACEP"
+  cond:    "Service_Action == 0x00"
+  parameters:
+  (0       "Page Code" values: #x00 "00h (Grant/Revoke)"
+                               #x01 "01h (Grant All)"
+                               #x02 "02h (Revoke Proxy Token)"
+                               #x03 "03h (Revoke All Proxy Tokens)")))
+
+
+(define access-control-out-00-ace-page '(
+  name:    "ACCESS_CONTROL_OUT_00_ACE_PAGE"
+  desc:    "Grant/Revoke ACE page"
+  tag:     "ACE00"
+  cond:    "Page_Code == 0x00"
+  parameters:
+  (0       "Page Code" "0x00")
+  (1)
+  (2 3     "Page Length" "n-3")
+  (4       "NOCNCL" bit: 7)
+  (5       "Access Identifier Type" values: #x00 "00h AccessID"
+                                            #x01 "01h TransportID")
+  (6 7     "Access Identifier Length" "COMPUTED_AT_RUNTIME")))
+
+
+(define access-control-out-00-ace-page-access-id '(
+  fixme:   "AccessID must be array of bytes"
+  name:    "ACCESS_CONTROL_OUT_00_ACE_PAGE_ACCESS_ID"
+  desc:    "AccessID access identifier"
+  tag:     "ACE00ID"
+  cond:    "Page_Code == 0x00"
+  parameters:
+  (0 15    );;"AccessID")
+  (16 23)))
+
+
+(define access-control-out-00-ace-page-luacd-descriptor '(
+  name:    "ACCESS_CONTROL_OUT_00_ACE_PAGE_LUACD_DESCRIPTOR"
+  desc:    "ACE page LUACD descriptor"
+  tag:     "ACE00D"
+  cond:    "Page_Code == 0x00"
+  parameters:
+  (0       "Access Mode")
+  (1 3)
+  (4 11    "LUN Value")
+  (12 19   "Default LUN")))
+
+
+(define access-control-out-00-ace-page-02 '(
+  name:    "ACCESS_CONTROL_OUT_00_ACE_PAGE_02"
+  desc:    "Revoke Proxy Token ACE page"
+  tag:     "ACE02"
+  cond:    "Page_Code == 0x02"
+  parameters:
+  (0       "Page Code" "0x02")
+  (1)
+  (2 3     "Page Length" "n-3")))
+
+
+(define access-control-out-00-ace-page-02-token '(
+  name:    "ACCESS_CONTROL_OUT_00_ACE_PAGE_02_TOKEN"
+  desc:    "Proxy Token"
+  tag:     "ACE02T"
+  cond:    "Page_Code == 0x02"
+  parameters:
+  (0 7     "Proxy Token")))
+
+
+(define access-control-out-01-cdb '(
+  name:    "ACCESS_CONTROL_OUT_01_CDB"
+  desc:    "Manage ACL"
+  cond:    "Service_Action == 0x01"
+  size:    16
+  tag:     "01"
+  parameters:
+  (0       "opcode" "0x87")
+  (1       "Service Action" "0x01" bits: 4 0)
+  (2 9)
+  (10 13   "Parameter List Length" 12)
+  (14)
+  (15      "Control" 0)))
+
+
+(define access-control-out-01-cdb-plist '(
+  name:    "ACCESS_CONTROL_OUT_01_CDB_PLIST"
+  desc:    "Disable Access Controls Parameter Data Format"
+  cond:    "Service_Action == 0x01"
+  tag:     "01PL"
+  parameters:
+  (0 3)
+  (4 11    "Management Identifier Key")))
+
+
+(define access-control-out-04-cdb '(
+  name:    "ACCESS_CONTROL_OUT_04_CDB"
+  desc:    "Clear Access Controls Log"
+  cond:    "Service_Action == 0x04"
+  size:    16
+  tag:     "04"
+  parameters:
+  (0       "opcode" "0x87")
+  (1       "Service Action" "0x04" bits: 4 0)
+  (2 9)
+  (10 13   "Parameter List Length" 12)
+  (14)
+  (15      "Control" 0)))
+
+
+(define access-control-out-04-plist '(
+  name:    "ACCESS_CONTROL_OUT_04_PLIST"
+  desc:    "Clear Access Controls Log Parameter Data Format"
+  tag:     "04PL"
+  cond:    "Service_Action == 0x04"
+  parameters:
+  (0 2)
+  (3       "Log Portion" bits: 1 0 values: #b00 "00b (Reserved)"
+                                           #b01 "01b (Invalid Keys portion)"
+                                           #b10 "10b (ACL LUN Conflicts portion)")
+  (4 11    "Management Identifier Key")))
+
+
+(define access-control-out-05-cdb '(
+  name:    "ACCESS_CONTROL_OUT_05_CDB"
+  desc:    "Manage Override Lockout Timer"
+  cond:    "Service_Action == 0x05"
+  size:    16
+  tag:     "05"
+  parameters:
+  (0       "opcode" "0x87")
+  (1       "Service Action" "0x05" bits: 4 0)
+  (2 9)
+  (10 13   "Parameter List Length" 12)
+  (14)
+  (15      "Control" 0)))
+
+
+(define access-control-out-05-plist '(
+  name:    "ACCESS_CONTROL_OUT_05_PLIST"
+  desc:    "Manage Override Lockout Timer Parameters"
+  tag:     "05PL"
+  cond:    "Service_Action == 0x05"
+  parameters:
+  (0 1)
+  (2 3     "New Initial Override Lockout Timer")
+  (4 11    "Management Identifier Key")))
+
+
+(define access-control-out-06-plist '(
+  name:    "ACCESS_CONTROL_OUT_06_PLIST"
+  desc:    "Override Mgmt ID Key Parameters"
+  tag:     "06PL"
+  cond:    "Service_Action == 0x06"
+  parameters:
+  (0 3)
+  (4 11    "Management Identifier Key")))
+
+
+(define access-control-out-07-plist '(
+  name:    "ACCESS_CONTROL_OUT_07_PLIST"
+  desc:    "Revoke Proxy Token Parameters"
+  tag:     "07PL"
+  cond:    "Service_Action == 0x07"
+  parameters:
+  (0 7     "Proxy Token")))
+
+
+(define access-control-out-08-plist '(
+  name:    "ACCESS_CONTROL_OUT_08_PLIST"
+  desc:    "Revoke All Proxy Tokens Parameters"
+  tag:     "08PL"
+  cond:    "Service_Action == 0x08"
+  parameters:
+  (0 7     "LUN Value")))
+
+
+(define access-control-out-09-plist '(
+  name:    "ACCESS_CONTROL_OUT_09_PLIST"
+  desc:    "Assign Proxy LUN Parameters"
+  tag:     "09PL"
+  cond:    "Service_Action == 0x09"
+  parameters:
+  (0 7     "Proxy Token")
+  (8 15    "LUN Value")))
+
+
+(define access-control-out-10-plist '(
+  fixme:   "same as ACCESS_CONTROL_OUT_08_PLIST"
+  name:    "ACCESS_CONTROL_OUT_10_PLIST"
+  desc:    "Release Proxy LUN Parameters"
+  tag:     "10PL"
+  cond:    "Service_Action == 0x0A"
+  parameters:
+  (0 7     "LUN Value")))
+
+
 (define maintenance-in-00-xml-group (list
   visible: "Service Action" "0"
   members: maintenance-in-00-cdb))
@@ -1968,6 +2222,29 @@
   access-control-in-04-xml-group))
 
 
+(define *access-control-out-all-cdbs* (list
+  access-control-out-cdb
+  access-control-out-00-cdb
+  access-control-out-00-plist
+  access-control-out-00-ace-page-code
+  access-control-out-00-ace-page
+  access-control-out-00-ace-page-access-id
+  access-control-out-00-ace-page-luacd-descriptor
+  access-control-out-00-ace-page-02
+  access-control-out-00-ace-page-02-token
+  access-control-out-01-cdb
+  access-control-out-01-cdb-plist
+  access-control-out-04-cdb
+  access-control-out-04-plist
+  access-control-out-05-cdb
+  access-control-out-05-plist
+  access-control-out-06-plist
+  access-control-out-07-plist
+  access-control-out-08-plist
+  access-control-out-09-plist
+  access-control-out-10-plist))
+
+
 (define *all-cdbs* (append 
   *maintenance-in-all-cdbs* 
   *maintenance-out-all-cdbs*
@@ -1978,6 +2255,7 @@
   *volume-set-in-all-cdbs*
   *volume-set-out-all-cdbs*
   *access-control-in-all-cdbs*
+  *access-control-out-all-cdbs*
 ))
 
 
