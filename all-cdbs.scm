@@ -1788,7 +1788,7 @@
 
 
 (define report-supported-operation-codes-cdb '(
-  name:    "REPORT_SUPPORTED_OPERATION_CODES_CDB"
+  name:    "REPORT_SUPPORTED_OPCODES_CDB"
   desc:    "Report Supported Operation Codes"
   size:    16
   parameters:
