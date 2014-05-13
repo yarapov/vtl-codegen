@@ -1787,6 +1787,24 @@
   (0 7     "LUN Value")))
 
 
+(define report-supported-operation-codes-cdb '(
+  name:    "REPORT_SUPPORTED_OPERATION_CODES_CDB"
+  desc:    "Report Supported Operation Codes"
+  size:    16
+  parameters:
+  (0       "opcode" "0xA3")
+  (1       "Service Action" "0x0C" bits: 4 0)
+  (2       "RCTD" bit: 7)
+  (2       "Reporting Options" bits: 2 0 values: #b000 "000b"
+                                                 #b001 "001b"
+                                                 #b010 "010b")
+  (3       "Requested Operation Code")
+  (4 5     "Requested Service Action")
+  (6 9     "Allocation Length" default: 256)
+  (10)
+  (11      "Control" 0)))
+
+
 (define maintenance-in-00-xml-group (list
   visible: "Service Action" "0"
   members: maintenance-in-00-cdb))
@@ -2256,6 +2274,7 @@
   *volume-set-out-all-cdbs*
   *access-control-in-all-cdbs*
   *access-control-out-all-cdbs*
+  (list report-supported-operation-codes-cdb)
 ))
 
 

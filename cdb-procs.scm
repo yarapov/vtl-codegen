@@ -673,6 +673,9 @@
 
 (define (make-access-control-out-c) (make-c *access-control-out-all-cdbs*))
 
+(define (make-report-supported-operation-codes-xml) (cdb->xml report-supported-operation-codes-cdb))
+(define (make-report-supported-operation-codes-c) (make-c (list report-supported-operation-codes-cdb)))
+
 (define (helpme)
   (for-each (curry format #t "~a~%")
             '("make-maintenance-in-xml"
@@ -685,6 +688,15 @@
               "make-redundancy-group-out-c"
               "make-spare-in-xml"
               "make-spare-in-c"
+              "make-volume-set-in-xml"
+              "make-volume-set-in-c"
+              "make-volume-set-out-xml"
+              "make-volume-set-out-c"
+              "make-access-control-in-xml"
+              "make-access-control-in-c"
+              "make-access-control-out-c"
+              "make-report-supported-operation-codes-xml"
+              "make-report-supported-operation-codes-c"
               )))
 
 ;; end of file
