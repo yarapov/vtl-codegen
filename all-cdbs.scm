@@ -1818,6 +1818,30 @@
   (11      "Control" 0)))
 
 
+(define set-timestamp-cdb '(
+  name:    "SET_TIMESTAMP_CDB"
+  desc:    "Set Timestamp"
+  size:    16
+  parameters:
+  (0       "opcode" "0xA4")
+  (1       "Service Action" "0x0F" bits: 4 0)
+  (2 5)
+  (6 9     "Parameter List Length" "sizeof( SET_TIMESTAMP_PLIST )")
+  (10)
+  (11      "Control" 0)))
+
+
+(define set-timestamp-plist '(
+  name:    "SET_TIMESTAMP_CDB_PLIST"
+  desc:    "Set Timestamp Parameter Data"
+  tag:     "PL"
+  parameters:
+  (0 3)
+  (4 9     "Timestamp")
+  (10 11)))
+
+
+
 (define maintenance-in-00-xml-group (list
   visible: "Service Action" "0"
   members: maintenance-in-00-cdb))
@@ -2276,6 +2300,11 @@
   access-control-out-10-plist))
 
 
+(define *set-timestamp-all-cdbs* (list
+  set-timestamp-cdb
+  set-timestamp-plist))
+
+
 (define *all-cdbs* (append 
   *maintenance-in-all-cdbs* 
   *maintenance-out-all-cdbs*
@@ -2289,6 +2318,7 @@
   *access-control-out-all-cdbs*
   (list report-supported-operation-codes-cdb)
   (list report-timestamp-cdb)
+  *set-timestamp-all-cdbs*
 ))
 
 

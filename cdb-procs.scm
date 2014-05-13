@@ -474,6 +474,7 @@
           (case len
             ((64 32 16)      (print "GetCurrentValue( ~a )->GetUint~a();~%" id len))
             ((24)            (print "GetCurrentValue( ~a )->GetUint32();~%" id))
+            ((48)            (print "GetCurrentValue( ~a )->GetUint64();~%" id))
             ((8)             (print "GetCurrentValue( ~a )->GetByte();~%" id))
             ((7 6 5 4 3 2 1) (print "GetCurrentValue( ~a )->GetByte()~a;~%" id
                                     (if (zero? bit-lo) ""
@@ -519,6 +520,11 @@
                (pr "htobe24( cdb->~a, ~a );~%" ident
                       (if value value
                         (format #f "GetCurrentValue( ~a )->GetUint32()" id))))
+
+              ((48) 
+               (pr "htobe48( cdb->~a, ~a );~%" ident
+                      (if value value
+                        (format #f "GetCurrentValue( ~a )->GetUint64()" id))))
 
               ((8) 
                (pr "cdb->~a = ~a;~%" ident
@@ -587,6 +593,9 @@
 
             ((24)
              (print "~a\tByte\t~a[3];~a~%" (addr-as-c-comment addr) ident (comment)))
+
+            ((48)
+             (print "~a\tByte\t~a[6];~a~%" (addr-as-c-comment addr) ident (comment)))
 
             ((16 32 64)
              (print "~a\tUint~a\t~a;~a~%" (addr-as-c-comment addr) len ident (comment)))
@@ -679,6 +688,9 @@
 (define (make-report-timestamp-xml) (cdb->xml report-timestamp-cdb))
 (define (make-report-timestamp-c) (make-c (list report-timestamp-cdb)))
 
+(define (make-set-timestamp-xml) (for-each cdb->xml *set-timestamp-all-cdbs*))
+(define (make-set-timestamp-c) (make-c *set-timestamp-all-cdbs*))
+
 (define (helpme)
   (for-each (curry format #t "~a~%")
             '("make-maintenance-in-xml"
@@ -702,6 +714,8 @@
               "make-report-supported-operation-codes-c"
               "make-report-timestamp-xml"
               "make-report-timestamp-c"
+              "make-set-timestamp-xml"
+              "make-set-timestamp-c"
               )))
 
 ;; end of file
