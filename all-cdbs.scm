@@ -1805,6 +1805,19 @@
   (11      "Control" 0)))
 
 
+(define report-timestamp-cdb '(
+  name:    "REPORT_TIMESTAMP_CDB"
+  desc:    "Report Timestamp"
+  size:    16
+  parameters:
+  (0       "opcode" "0xA3")
+  (1       "Service Action" "0x0F" bits: 4 0)
+  (2 5)
+  (6 9     "Allocation Length" default: 256)
+  (10)
+  (11      "Control" 0)))
+
+
 (define maintenance-in-00-xml-group (list
   visible: "Service Action" "0"
   members: maintenance-in-00-cdb))
@@ -2275,6 +2288,7 @@
   *access-control-in-all-cdbs*
   *access-control-out-all-cdbs*
   (list report-supported-operation-codes-cdb)
+  (list report-timestamp-cdb)
 ))
 
 

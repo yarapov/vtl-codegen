@@ -676,6 +676,9 @@
 (define (make-report-supported-operation-codes-xml) (cdb->xml report-supported-operation-codes-cdb))
 (define (make-report-supported-operation-codes-c) (make-c (list report-supported-operation-codes-cdb)))
 
+(define (make-report-timestamp-xml) (cdb->xml report-timestamp-cdb))
+(define (make-report-timestamp-c) (make-c (list report-timestamp-cdb)))
+
 (define (helpme)
   (for-each (curry format #t "~a~%")
             '("make-maintenance-in-xml"
@@ -697,6 +700,8 @@
               "make-access-control-out-c"
               "make-report-supported-operation-codes-xml"
               "make-report-supported-operation-codes-c"
+              "make-report-timestamp-xml"
+              "make-report-timestamp-c"
               )))
 
 ;; end of file
